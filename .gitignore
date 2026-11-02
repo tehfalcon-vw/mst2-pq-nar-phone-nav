@@ -1,5 +1,6 @@
 /dist/
 /java/build*/
+/java/verify-*/
 /java/*.jar
 /native/build/
 /aa-shim/build/

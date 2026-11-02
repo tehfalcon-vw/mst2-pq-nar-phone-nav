@@ -2,10 +2,11 @@ package de.aatokombi;
 
 import de.adi961.miblogger.MIBLogger;
 
-/** Compile-time settings for the P0478T PQ navigation-only overlay. */
+/** Compile-time settings for the P0478T PQ phone-integration overlay. */
 public final class Config {
     public static final boolean SHOW_NAV = true;
-    public static final boolean SHOW_MEDIA = false;
+    public static final boolean SHOW_MEDIA = true;
+    public static final boolean SHOW_MEDIA_PROGRESS = false;
     public static final boolean SHOW_COVER_ART = false;
     public static final int MANEUVER_NEAR_METERS = 400;
     public static final int MANEUVER_NEAR_SECONDS = 30;

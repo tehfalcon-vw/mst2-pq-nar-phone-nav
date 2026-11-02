@@ -1,8 +1,8 @@
-# MST2-PQ NAR Phone Navigation
+# MST2-PQ NAR Phone Navigation, Media and 115% Scale
 
-Beta support for CarPlay and Android Auto turn-by-turn directions in the factory
-Navigation page of a VW PQ instrument-cluster MFD. This project intentionally sends
-only navigation status, maneuver arrows, street names, distance and destination time.
+Beta support for CarPlay and Android Auto navigation arrows, now-playing information
+and optional 115% projection scaling on a VW PQ MST2 unit. Navigation appears in the
+factory cluster Navigation page; song, artist and album appear in the MFD audio page.
 PQ has no MOST link to the cluster, so phone map video is not part of this project.
 
 ## Supported firmware
@@ -27,8 +27,11 @@ not yet been tested in a vehicle. Treat it as an early beta.
 - Android Auto navigation through the proven GAL navigation endpoint bridge.
 - CarPlay navigation through iAP2 Route Guidance.
 - Output through the stock PQ `mqbpq` NavSD/BAP functions.
+- CarPlay and Android Auto title, artist and album on the cluster MFD audio page.
+- Selectable stock 100% or enlarged 115% CarPlay and Android Auto screen scale.
+- Support for both Android Auto DSI generations present in P0478T.
 - A one-boot trial, emergency kill switch, stock backups and uninstall.
-- No map video, MOST code, display-manager hook, album art or media metadata.
+- No cluster map video, MOST code, display-manager hook or album art.
 
 ## Before installing
 
@@ -55,9 +58,13 @@ Navigation page in the cluster. Do not test while driving.
    firmware check.
 7. Reboot. The next boot is a one-boot trial.
 8. Connect a phone, start a route in CarPlay or Android Auto, and select the cluster's
-   factory Navigation page.
+   factory Navigation page. Play audio and verify title, artist and album in the MFD
+   audio page.
 9. If the radio, phone connection, controls and MFD remain stable, return to the same
    menu and choose **Enable permanently**, then reboot once more.
+10. The first trial uses stock 100% projection scale. After the base features pass,
+    choose **Projection scale: 115%**, reboot, and verify CarPlay and Android Auto touch
+    alignment. Choose **Projection scale: stock 100%** and reboot to revert the scale.
 
 The installer saves stock files on the unit and in
 `mst2-pq-phone-nav-backup` on the SD card. Keep the SD-card copy.
@@ -78,6 +85,9 @@ Please include:
 - Vehicle, model year, cluster part number and display type.
 - Phone model, OS version, CarPlay/Android Auto connection type and navigation app.
 - Which fields worked: route-active state, arrow, distance, street and destination time.
+- Whether title, artist and album update, clear on disconnect and switch correctly
+  between CarPlay and Android Auto.
+- Whether 115% works for both phone protocols without cropped controls or touch offset.
 - Whether disconnect, reconnect, trial boot, permanent enable, kill switch and uninstall worked.
 - Relevant `/tsd/var/mst2-pq-phone-nav` and SAL log output.
 
@@ -104,6 +114,11 @@ The Android Auto bridge and PQ NavSD shadows are adapted from
 [MrGame11/mib-std2-AAtoKombi](https://github.com/MrGame11/mib-std2-AAtoKombi).
 The CarPlay iAP2 Route Guidance decoder and native hooks are adapted from
 [perkthefox/mst2-cluster-nav](https://github.com/perkthefox/mst2-cluster-nav).
+Projection scaling is adapted from
+[ipaifix/mst2-carplay-scale](https://github.com/ipaifix/mst2-carplay-scale), with an
+Android Auto port for both P0478T DSI generations. PQ media integration is adapted
+from [xPaiiN/mst2-carplay-vc](https://github.com/xPaiiN/mst2-carplay-vc) and the PQ
+AudioSD work in AAtoKombi.
 
-See `LICENSE-AAtoKombi.md`, `LICENSE-CarPlay.md`, and `NOTICE`. The combined release is
-non-commercial because the CarPlay portion is CC BY-NC-SA 4.0.
+See the four license files and `NOTICE`. The combined release is non-commercial because
+the CarPlay route-guidance portion is CC BY-NC-SA 4.0.
