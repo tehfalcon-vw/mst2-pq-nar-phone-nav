@@ -11,6 +11,9 @@ HERE="$(cd "$(dirname "$0")" && pwd)"
 if [ -n "${ZIG:-}" ]; then
     CLANG="$ZIG cc"
     LLD="$ZIG ld.lld"
+    TARGET="-target arm-freestanding-eabi -mcpu=cortex_a8"
+else
+    TARGET="--target=armv7a-none-eabi"
 fi
 if [ -z "${CLANG:-}" ]; then
     if [ -n "${LLVM:-}" ]; then
@@ -35,7 +38,7 @@ if [ -z "${LLD:-}" ]; then
     fi
 fi
 OUT="$HERE/build"
-CFLAGS="-target arm-freestanding-eabi -mcpu=cortex_a8 -marm -mfloat-abi=soft -fPIC -Os -ffreestanding -nostdlib
+CFLAGS="$TARGET -marm -mfloat-abi=soft -fPIC -Os -ffreestanding -nostdlib
  -fno-stack-protector -fno-builtin -fvisibility=hidden -std=c99 -Wall -Wextra -Werror
  -I$HERE/include"
 LDFLAGS="-shared -z defs -z max-page-size=0x1000 --hash-style=sysv --gc-sections"
