@@ -1,0 +1,109 @@
+# MST2-PQ NAR Phone Navigation
+
+Beta support for CarPlay and Android Auto turn-by-turn directions in the factory
+Navigation page of a VW PQ instrument-cluster MFD. This project intentionally sends
+only navigation status, maneuver arrows, street names, distance and destination time.
+PQ has no MOST link to the cluster, so phone map video is not part of this project.
+
+## Supported firmware
+
+| Item | Required value |
+|---|---|
+| Train | `MST2_US_VW_PQ_P0478T` |
+| MU | `0478` |
+| Part number | `3G0919360JP` |
+| HMI | `H29.319.93` |
+| Unit | TechniSat/Preh MST2-PQ (`T` suffix) |
+
+Both `stdNavi` (`cpu`) and `stdPlus` (`cpuplus`) variants from this release are
+included. The installer verifies the HMI, Android Auto library and iAP2 driver before
+changing anything. A mismatch stops the installation.
+
+This has been built and statically checked against the supplied P0478T firmware but has
+not yet been tested in a vehicle. Treat it as an early beta.
+
+## What it adds
+
+- Android Auto navigation through the proven GAL navigation endpoint bridge.
+- CarPlay navigation through iAP2 Route Guidance.
+- Output through the stock PQ `mqbpq` NavSD/BAP functions.
+- A one-boot trial, emergency kill switch, stock backups and uninstall.
+- No map video, MOST code, display-manager hook, album art or media metadata.
+
+## Before installing
+
+You need:
+
+- The exact firmware shown above, already running on the unit.
+- A working [MIB STD2 Toolbox](https://github.com/olli991/mib-std2-pq-zr-toolbox)
+  SD card and its Green Engineering Menu.
+- The beta ZIP from this repository's Releases page.
+- Stable vehicle power and an untouched backup of the unit.
+
+Do not install on ZR, Delphi, another firmware train, or a unit without the factory
+Navigation page in the cluster. Do not test while driving.
+
+## Install the beta
+
+1. Download `mst2-pq-nar-phone-nav-p0478t-beta.zip` from the latest release.
+2. Extract it and open the included `sd` folder.
+3. Merge its `custom` folder into the root of your existing MIB STD2 Toolbox SD card.
+   Keep all Toolbox files already on the card.
+4. Insert the card and open the Green Engineering Menu.
+5. Open **Customization → MST2-PQ NAR CarPlay + Android Auto navigation arrows**.
+6. Choose **Install / update**. If the result says `Aborted`, stop; never bypass the
+   firmware check.
+7. Reboot. The next boot is a one-boot trial.
+8. Connect a phone, start a route in CarPlay or Android Auto, and select the cluster's
+   factory Navigation page.
+9. If the radio, phone connection, controls and MFD remain stable, return to the same
+   menu and choose **Enable permanently**, then reboot once more.
+
+The installer saves stock files on the unit and in
+`mst2-pq-phone-nav-backup` on the SD card. Keep the SD-card copy.
+
+## Emergency disable and uninstall
+
+To force the mod off before the HMI starts, create an empty file named
+`mst2-pq-phone-nav-disable` in the root of the Toolbox SD card, insert it, and boot.
+
+For a normal removal, open the same Green Engineering Menu page, choose **Uninstall and
+restore stock files**, wait for success, and reboot.
+
+## Tester report
+
+Please include:
+
+- Software train, part number and whether the installer selected `cpu` or `cpuplus`.
+- Vehicle, model year, cluster part number and display type.
+- Phone model, OS version, CarPlay/Android Auto connection type and navigation app.
+- Which fields worked: route-active state, arrow, distance, street and destination time.
+- Whether disconnect, reconnect, trial boot, permanent enable, kill switch and uninstall worked.
+- Relevant `/tsd/var/mst2-pq-phone-nav` and SAL log output.
+
+Do not upload firmware archives.
+
+## Build from source
+
+The HMI overlay requires JDK 8 and a `MIBHMI.jar` converted from your own P0478T
+`MIBHMI.jxe`:
+
+```sh
+MIBHMI=/path/to/MIBHMI.jar JAVAC=/path/to/jdk8/bin/javac ./java/build.sh
+./native/check.sh
+CLANG=clang LLD=ld.lld ./native/build.sh
+./aa-shim/build.sh /path/to/libext.google.gal.receiver.so
+```
+
+`package.sh` lays out the Toolbox SD-card ZIP after the built artifacts have been staged
+under `toolbox/custom/mst2-pq-phone-nav`.
+
+## Credits and licenses
+
+The Android Auto bridge and PQ NavSD shadows are adapted from
+[MrGame11/mib-std2-AAtoKombi](https://github.com/MrGame11/mib-std2-AAtoKombi).
+The CarPlay iAP2 Route Guidance decoder and native hooks are adapted from
+[perkthefox/mst2-cluster-nav](https://github.com/perkthefox/mst2-cluster-nav).
+
+See `LICENSE-AAtoKombi.md`, `LICENSE-CarPlay.md`, and `NOTICE`. The combined release is
+non-commercial because the CarPlay portion is CC BY-NC-SA 4.0.

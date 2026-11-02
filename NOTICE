@@ -1,0 +1,6 @@
+This project combines and adapts work from MrGame11/mib-std2-AAtoKombi and
+perkthefox/mst2-cluster-nav for the North American MST2 PQ P0478T firmware.
+
+AAtoKombi portions retain their GPL-3.0 license. CarPlay route-guidance portions
+retain their CC BY-NC-SA 4.0 license. See the two license files in this repository.
+No original Volkswagen firmware archive is included.

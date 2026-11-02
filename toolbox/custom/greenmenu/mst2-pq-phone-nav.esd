@@ -1,0 +1,19 @@
+screen MST2_PQ_Phone_Nav Customization
+
+keyValue
+    value String sys 0x00000000 0
+    label "MST2-PQ NAR CarPlay + Android Auto navigation arrows"
+    poll 0
+
+script
+    value sys 1 0x0100 "/tsd/etc/persistence/esd/scripts/mpq_install.sh"
+    label "Install / update (next boot is a trial)"
+script
+    value sys 1 0x0100 "/tsd/etc/persistence/esd/scripts/mpq_enable.sh"
+    label "Enable permanently"
+script
+    value sys 1 0x0100 "/tsd/etc/persistence/esd/scripts/mpq_disable.sh"
+    label "Disable"
+script
+    value sys 1 0x0100 "/tsd/etc/persistence/esd/scripts/mpq_uninstall.sh"
+    label "Uninstall and restore stock files"

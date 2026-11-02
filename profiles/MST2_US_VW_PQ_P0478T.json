@@ -1,0 +1,19 @@
+{
+  "release": "MST2_US_VW_PQ_P0478T",
+  "mu_version": "0478",
+  "vendor": "TechniSat/Preh",
+  "region": "USA",
+  "part_number": "3G0919360JP",
+  "hmi_version": "H29.319.93",
+  "variants": {
+    "cpu": {
+      "hmi_jxe": {"size": 42329796, "cksum": 2318895772, "sha256": "debb6893bc907432bc58e079567f31135572da2f8dc05e2de12948e5ae8edc93"},
+      "libgal": {"size": 1455784, "cksum": 1912803236, "sha256": "b030fff517d641d3d6b72ddf748565adec58368a1875c8e5fd58c83dd03116eb"}
+    },
+    "cpuplus": {
+      "hmi_jxe": {"size": 41745824, "cksum": 2584275572, "sha256": "e001e0a4861f5615e454fcc880f9c86e3a39282853a830a86e0afbf1005cbee8"},
+      "libgal": {"size": 1455800, "cksum": 1947749194, "sha256": "c80164d62b69478c7f7ab7b2719b6ced7a529d7a24c2cd386cb6c399b22ae8c2"}
+    }
+  },
+  "iap2_driver": {"size": 771102, "cksum": 1621430627, "sha256": "b0f52fc0f4b5fda09e3e1ab75cbb23e9252173da3199d998a947d9df6d846f49"}
+}

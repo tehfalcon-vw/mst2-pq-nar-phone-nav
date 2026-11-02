@@ -1,0 +1,15 @@
+# >>> mst2-pq-phone-nav
+MPQ=/tsd/var/mst2-pq-phone-nav
+MPQ_OFF=
+for d in /media/mp00?; do [ -e $d/mst2-pq-phone-nav-disable ] && MPQ_OFF=1; done
+[ -e $MPQ/enabled -o -e $MPQ/trial ] || MPQ_OFF=1
+if [ -n "$MPQ_OFF" ]; then
+  /usr/bin/touch /dev/shmem/mst2-cluster-nav-off
+  /bin/rm -f /dev/shmem/mst2-cluster-nav-on
+else
+  /bin/rm -f /dev/shmem/mst2-cluster-nav-off
+  /usr/bin/touch /dev/shmem/mst2-cluster-nav-on
+  [ -e $MPQ/trial ] && { /usr/bin/touch /dev/shmem/mst2-cluster-nav-trial; /bin/rm -f $MPQ/trial; }
+  BOOTCLASSPATH="$BOOTCLASSPATH:$MPQ/mst2-pq-nar-phone-nav.jar"
+fi
+# <<< mst2-pq-phone-nav

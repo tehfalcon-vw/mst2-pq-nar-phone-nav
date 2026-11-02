@@ -1,0 +1,10 @@
+/dist/
+/java/build*/
+/java/*.jar
+/native/build/
+/aa-shim/build/
+/aa-shim/lib/*.so
+*.7z
+*.zip
+__pycache__/
+*.pyc
