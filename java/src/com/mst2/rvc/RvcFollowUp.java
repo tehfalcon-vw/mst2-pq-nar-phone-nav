@@ -90,6 +90,15 @@ public final class RvcFollowUp {
         return intercepted;
     }
 
+    /** Final source-level guard for HMI event 10008. */
+    public static synchronized boolean suppressFailureHmiEvent(String branch) {
+        long elapsed = System.currentTimeMillis() - lastCameraExit;
+        boolean recentExit = lastCameraExit != 0 && elapsed >= 0 && elapsed <= 10000;
+        boolean suppress = enabled() && (cameraStateActive || recentExit);
+        recordSignal("target", (suppress ? "suppress-10008 " : "allow-10008 ") + branch);
+        return suppress;
+    }
+
     /** Returns true only when stock CLOSE_PARKING was delivered for this failure. */
     public static synchronized boolean interceptPdcFailure(boolean failed, int valid, String state) {
         try { writeText(CALLBACK, "state=" + state + " failed=" + (failed ? 1 : 0) + " valid=" + valid); } catch (Throwable t) {}

@@ -118,6 +118,11 @@ delivery succeeds. Outside that narrow window its original failure handling rema
 unchanged. A successfully intercepted failure also suppresses the duplicate close that
 would otherwise be sent by the following state-exit event.
 
+As a final source-level safeguard, the single P0478T producer of HMI failure event
+`10008` is gated by the same camera-active/recent-exit window. A suppressed event does
+not set the stock notification latch, so a genuine later fault outside the window can
+still be reported.
+
 **Warning:** this optional mode closes parking whenever the active camera state exits,
 including a transition away from the camera for a reason other than leaving reverse.
 It may also suppress a genuine parking-system fault reported during the camera popup.
