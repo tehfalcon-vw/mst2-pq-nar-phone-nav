@@ -77,13 +77,17 @@ class ProfileTest(unittest.TestCase):
     def test_rvc_fix_uses_reverse_edge_and_stock_close_event(self):
         target = (ROOT / "java/src/de/vw/mib/asl/internal/androidauto/target/AndroidAutoTarget.java").read_text()
         helper = (ROOT / "java/src/com/mst2/rvc/RvcFollowUp.java").read_text()
+        stock_hook = (ROOT / "java/src/de/vw/mib/asl/internal/car/thinkblue/calc/table/ConditionsContainer.java").read_text()
         menu = (ROOT / "toolbox/custom/greenmenu/mst2-pq-phone-nav.esd").read_text()
         uninstall = (ROOT / "toolbox/custom/greenmenu/scripts/mpq_uninstall.sh").read_text()
-        self.assertIn("setNotification(15", target)
-        self.assertIn("dsiCarVehicleStatesUpdateDynamicVehicleInfoMidFrequent", target)
-        self.assertIn("getAutomaticGearShiftTransMode", target)
-        self.assertIn("triggerObserver(1073745153, null)", target)
-        self.assertIn("previous == 2 && mode != 2", helper)
+        self.assertNotIn("DSICarVehicleStates", target)
+        self.assertNotIn("setNotification(15", target)
+        self.assertNotIn("RvcFollowUp", target)
+        self.assertIn("RvcFollowUp.updateReverse(value)", stock_hook)
+        self.assertIn("refreshConditionsRGear(boolean value)", stock_hook)
+        self.assertIn("getServiceRegister().triggerObserver(1073745153)",
+                      "".join(helper.split()))
+        self.assertIn("previous == 1 && !reverse", helper)
         self.assertIn("rvc-gear-callback", helper)
         self.assertNotIn("setVPSFollowUpTime", helper)
         self.assertNotIn("updatePDCFailure", helper)
@@ -91,16 +95,13 @@ class ProfileTest(unittest.TestCase):
         self.assertIn("mpq_rvc_instant_off.sh", menu)
         self.assertIn("mpq_rvc_status.sh", menu)
         status = (ROOT / "toolbox/custom/greenmenu/scripts/mpq_rvc_status.sh").read_text()
-        self.assertIn("Gear DSI initialization", status)
-        self.assertIn("Gear callback", status)
+        self.assertIn("Stock reverse-listener bridge", status)
+        self.assertIn("Reverse callback", status)
         self.assertIn("Last close request", status)
         self.assertNotIn("rvc-followup", uninstall)
         disable = (ROOT / "toolbox/custom/greenmenu/scripts/mpq_disable.sh").read_text()
         self.assertNotIn("rvc-followup", disable)
-        startup = target.split("public void startup()", 1)[1].split("public void shutdown()", 1)[0]
-        initialize_dsi = target.split("public void initializeDSI()", 1)[1].split("private void initializeRvcFollowUp", 1)[0]
-        self.assertIn("initializeRvcFollowUp", startup)
-        self.assertNotIn("initializeRvcFollowUp", initialize_dsi)
+        self.assertIn("ServiceManager.eventMain", helper)
 
     def test_rvc_fix_defaults_off_but_survives_updates(self):
         install = (ROOT / "toolbox/custom/greenmenu/scripts/mpq_install.sh").read_text()

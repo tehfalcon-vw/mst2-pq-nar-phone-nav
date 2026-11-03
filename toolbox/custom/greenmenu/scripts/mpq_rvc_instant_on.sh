@@ -10,5 +10,5 @@ echo 1 > $MPQ/rvc-instant && rm -f $MPQ/rvc-gear-init $MPQ/rvc-gear-callback $MP
   exit 1
 }
 echo "Aftermarket RVC instant close requested."
-echo "No vehicle setting is changed; the runtime reverse-exit watcher will start."
+echo "No vehicle setting is changed; the stock reverse listener bridge will start."
 mpq_reboot

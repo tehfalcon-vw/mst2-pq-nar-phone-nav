@@ -5,14 +5,14 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 
-/** Detects the supported P0478T reverse-to-forward/neutral/park transition. */
+/** Bridges the stock reverse-gear callback to the stock parking close event. */
 public final class RvcFollowUp {
     private static final String ROOT = "/tsd/var/mst2-pq-phone-nav";
     private static final String CONFIG = ROOT + "/rvc-instant";
     private static final String INIT = ROOT + "/rvc-gear-init";
     private static final String CALLBACK = ROOT + "/rvc-gear-callback";
     private static final String CLOSE = ROOT + "/rvc-close-request";
-    private static int lastMode = -1;
+    private static int lastReverse = -1;
 
     private RvcFollowUp() {}
 
@@ -20,21 +20,21 @@ public final class RvcFollowUp {
         return readInt(CONFIG, 0) == 1;
     }
 
-    public static void markInit(String stage) {
-        try { writeText(INIT, stage); } catch (Throwable t) {}
-    }
-
-    /** Returns true exactly once on each valid automatic-transmission R -> non-R edge. */
-    public static synchronized boolean updateGear(int mode, int valid) {
-        try { writeText(CALLBACK, "mode=" + mode + " valid=" + valid); } catch (Throwable t) {}
-        if (valid != 1) return false;
-        int previous = lastMode;
-        lastMode = mode;
-        return enabled() && previous == 2 && mode != 2;
-    }
-
-    public static void markClose(int mode) {
-        try { writeText(CLOSE, "reverse-exit mode=" + mode); } catch (Throwable t) {}
+    /** Called by the firmware's existing DSIGeneralVehicleStates reverse listener. */
+    public static synchronized void updateReverse(boolean reverse) {
+        try { writeText(INIT, "stock-listener-active"); } catch (Throwable t) {}
+        try { writeText(CALLBACK, reverse ? "reverse=1" : "reverse=0"); } catch (Throwable t) {}
+        int previous = lastReverse;
+        lastReverse = reverse ? 1 : 0;
+        if (enabled() && previous == 1 && !reverse) {
+            try {
+                boolean delivered = de.vw.mib.asl.framework.internal.framework.ServiceManager.eventMain
+                        .getServiceRegister().triggerObserver(1073745153);
+                writeText(CLOSE, delivered ? "reverse-exit delivered=1" : "reverse-exit delivered=0");
+            } catch (Throwable t) {
+                try { writeText(CLOSE, "failed"); } catch (Throwable ignored) {}
+            }
+        }
     }
 
     private static int readInt(String path, int fallback) {
