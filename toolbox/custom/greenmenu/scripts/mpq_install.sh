@@ -9,7 +9,15 @@ else
   echo "Actual iAP2 cksum and size:"
   cksum /lib/dll/ipod-drvr-iap2.so 2>/dev/null || echo "Unable to read iAP2 driver checksum."
 fi
-VARIANT=$(mpq_variant) || { echo "Aborted: this is not an untouched P0478T cpu/cpuplus target."; exit 1; }
+VARIANT=$(mpq_variant) || {
+  echo "Aborted: unknown P0478T cpu/cpuplus GAL combination."
+  echo "MIBHMI.jxe cksum and size:"
+  cksum /tsd/hmi/ifs/MIBHMI.jxe 2>/dev/null || echo "unreadable"
+  echo "GAL cksum and size:"
+  cksum $GAL 2>/dev/null || echo "unreadable"
+  echo "Record both lines; no files were changed."
+  exit 1
+}
 CARD=$(mpq_card) || { echo "Aborted: beta files not found on SD card."; exit 1; }
 SRC=$CARD/custom/mst2-pq-phone-nav
 mkdir -p $MPQ/backup $CARD/mst2-pq-phone-nav-backup

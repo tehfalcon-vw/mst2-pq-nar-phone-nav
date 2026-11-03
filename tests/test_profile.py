@@ -53,5 +53,13 @@ class ProfileTest(unittest.TestCase):
                       "Location slot mismatch", "receive entry mismatch"):
             self.assertIn(guard, hook)
 
+    def test_unknown_gal_aborts_with_diagnostics(self):
+        install = (ROOT / "toolbox/custom/greenmenu/scripts/mpq_install.sh").read_text()
+        diag = (ROOT / "toolbox/custom/greenmenu/scripts/mpq_diagnostics.sh").read_text()
+        self.assertIn("unknown P0478T cpu/cpuplus GAL combination", install)
+        self.assertIn("cksum $GAL", install)
+        self.assertIn("This action does not change files", diag)
+        self.assertIn("cksum /tsd/hmi/ifs/MIBHMI.jxe", diag)
+
 if __name__ == "__main__":
     unittest.main()
