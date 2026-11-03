@@ -89,6 +89,8 @@ class ProfileTest(unittest.TestCase):
         self.assertIn("getServiceRegister().triggerObserver(1073745153)",
                       "".join(helper.split()))
         self.assertIn("previous == 2 && mode != 2", helper)
+        self.assertIn("previous == mode) return", helper)
+        self.assertIn("rvc-gear-history", helper)
         self.assertIn("rvc-gear-callback", helper)
         self.assertNotIn("setVPSFollowUpTime", helper)
         self.assertNotIn("updatePDCFailure", helper)
@@ -98,6 +100,7 @@ class ProfileTest(unittest.TestCase):
         status = (ROOT / "toolbox/custom/greenmenu/scripts/mpq_rvc_status.sh").read_text()
         self.assertIn("Car-service gear bridge", status)
         self.assertIn("Gear callback", status)
+        self.assertIn("Gear history", status)
         self.assertIn("Last close request", status)
         self.assertNotIn("rvc-followup", uninstall)
         disable = (ROOT / "toolbox/custom/greenmenu/scripts/mpq_disable.sh").read_text()
@@ -108,7 +111,7 @@ class ProfileTest(unittest.TestCase):
         install = (ROOT / "toolbox/custom/greenmenu/scripts/mpq_install.sh").read_text()
         self.assertIn("[ -s $MPQ/rvc-instant ] || echo 0", install)
         self.assertNotIn("echo 0 > $MPQ/rvc-instant ||", install.split("[ -s $MPQ/rvc-instant ]", 1)[0])
-        self.assertIn("rm -f $MPQ/rvc-gear-init $MPQ/rvc-gear-callback $MPQ/rvc-close-request", install)
+        self.assertIn("rm -f $MPQ/rvc-gear-init $MPQ/rvc-gear-callback $MPQ/rvc-gear-history $MPQ/rvc-close-request", install)
         self.assertIn("preference was preserved", install)
 
     def test_iap2_mismatch_uses_runtime_guards(self):

@@ -91,7 +91,8 @@ unavailable** message.
 5. Reopen the menu and choose **Aftermarket RVC: show status**. It should report
    **Car-service gear bridge: car-service-listener-active** and a **Gear callback**
    with a non-reverse mode after shifting out of reverse. **Last close request** should
-   show `reverse-exit mode=... delivered=1`.
+   show `reverse-exit mode=... delivered=1`. **Gear history** records only transitions;
+   a Park → Reverse → Park test should include `1>2>1`.
 6. Repeat several times, then test normal parking-sensor activation and its on-screen
    close button. Genuine parking-sensor faults must still be shown.
 

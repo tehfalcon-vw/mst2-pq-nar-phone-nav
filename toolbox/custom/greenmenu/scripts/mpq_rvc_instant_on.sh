@@ -5,7 +5,7 @@
   exit 1
 }
 mkdir -p $MPQ || { echo "RVC setting failed. Unit was not rebooted."; exit 1; }
-echo 1 > $MPQ/rvc-instant && rm -f $MPQ/rvc-gear-init $MPQ/rvc-gear-callback $MPQ/rvc-close-request || {
+echo 1 > $MPQ/rvc-instant && rm -f $MPQ/rvc-gear-init $MPQ/rvc-gear-callback $MPQ/rvc-gear-history $MPQ/rvc-close-request || {
   echo "RVC setting failed. Unit was not rebooted."
   exit 1
 }

@@ -11,8 +11,11 @@ public final class RvcFollowUp {
     private static final String CONFIG = ROOT + "/rvc-instant";
     private static final String INIT = ROOT + "/rvc-gear-init";
     private static final String CALLBACK = ROOT + "/rvc-gear-callback";
+    private static final String HISTORY = ROOT + "/rvc-gear-history";
     private static final String CLOSE = ROOT + "/rvc-close-request";
     private static int lastMode = -1;
+    private static String history = "";
+    private static boolean initialized;
 
     private RvcFollowUp() {}
 
@@ -22,10 +25,20 @@ public final class RvcFollowUp {
 
     /** Called by HsmTargetCarService's existing attribute-15 listener. R is mode 2. */
     public static synchronized void updateGear(int mode) {
-        try { writeText(INIT, "car-service-listener-active"); } catch (Throwable t) {}
-        try { writeText(CALLBACK, "mode=" + mode); } catch (Throwable t) {}
+        if (!initialized) {
+            initialized = true;
+            try { writeText(INIT, "car-service-listener-active"); } catch (Throwable t) {}
+        }
         int previous = lastMode;
+        if (previous == mode) return;
         lastMode = mode;
+        history = history.length() == 0 ? String.valueOf(mode) : new StringBuffer(history).append(">").append(mode).toString();
+        if (history.length() > 80) {
+            int first = history.indexOf(">");
+            if (first >= 0) history = history.substring(first + 1);
+        }
+        try { writeText(CALLBACK, "mode=" + mode); } catch (Throwable t) {}
+        try { writeText(HISTORY, history); } catch (Throwable t) {}
         if (enabled() && previous == 2 && mode != 2) {
             try {
                 boolean delivered = de.vw.mib.asl.framework.internal.framework.ServiceManager.eventMain

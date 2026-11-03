@@ -8,4 +8,5 @@ else
 fi
 echo "Car-service gear bridge: $(sed -n '1p' $MPQ/rvc-gear-init 2>/dev/null || echo not-active)"
 echo "Gear callback: $(sed -n '1p' $MPQ/rvc-gear-callback 2>/dev/null || echo not-received)"
+echo "Gear history: $(sed -n '1p' $MPQ/rvc-gear-history 2>/dev/null || echo none)"
 echo "Last close request: $(sed -n '1p' $MPQ/rvc-close-request 2>/dev/null || echo none)"
