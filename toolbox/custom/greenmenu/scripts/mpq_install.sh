@@ -14,11 +14,13 @@ else
 fi
 VARIANT=$(mpq_variant) || {
   echo "Aborted: unknown P0478T cpu/cpuplus GAL combination."
-  echo "MIBHMI.jxe fingerprint:"
-  mpq_fingerprint /tsd/hmi/ifs/MIBHMI.jxe
-  echo "GAL fingerprint:"
-  mpq_fingerprint $GAL
-  echo "Record both lines; no files were changed."
+  if mpq_save_report $CARD; then
+    echo "Compatibility report saved to SD card:"
+    echo "mst2-pq-phone-nav-diagnostics.txt"
+  else
+    echo "Unable to save compatibility report to SD card."
+  fi
+  echo "No unit files were changed."
   exit 1
 }
 mkdir -p $MPQ/backup $CARD/mst2-pq-phone-nav-backup

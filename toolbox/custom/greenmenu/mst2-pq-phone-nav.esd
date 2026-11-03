@@ -10,7 +10,7 @@ script
     label "Install / update (next boot is a trial)"
 script
     value sys 1 0x0100 "/tsd/etc/persistence/esd/scripts/mpq_diagnostics.sh"
-    label "Show compatibility diagnostics (read-only)"
+    label "Export compatibility report to SD card"
 script
     value sys 1 0x0100 "/tsd/etc/persistence/esd/scripts/mpq_enable.sh"
     label "Enable permanently"

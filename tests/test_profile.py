@@ -58,9 +58,18 @@ class ProfileTest(unittest.TestCase):
         install = (ROOT / "toolbox/custom/greenmenu/scripts/mpq_install.sh").read_text()
         diag = (ROOT / "toolbox/custom/greenmenu/scripts/mpq_diagnostics.sh").read_text()
         self.assertIn("unknown P0478T cpu/cpuplus GAL combination", install)
-        self.assertIn("mpq_fingerprint $GAL", install)
-        self.assertIn("This action does not change files", diag)
-        self.assertIn("mpq_fingerprint /tsd/hmi/ifs/MIBHMI.jxe", diag)
+        common = (ROOT / "toolbox/custom/greenmenu/scripts/mpq_common.sh").read_text()
+        self.assertIn("mpq_fingerprint $GAL", common)
+        self.assertIn("mst2-pq-phone-nav-diagnostics.txt", diag)
+        self.assertIn("No unit files were changed", diag)
+        self.assertIn("mpq_fingerprint /tsd/hmi/ifs/MIBHMI.jxe", common)
+
+    def test_failed_install_exports_report(self):
+        install = (ROOT / "toolbox/custom/greenmenu/scripts/mpq_install.sh").read_text()
+        common = (ROOT / "toolbox/custom/greenmenu/scripts/mpq_common.sh").read_text()
+        self.assertIn("mpq_save_report $CARD", install)
+        self.assertIn("mst2-pq-phone-nav-diagnostics.txt", common)
+        self.assertIn("mpq_report > $MPQ_REPORT", common)
 
     def test_bundled_qnx_hash_helper(self):
         helper = ROOT / "toolbox/custom/mst2-pq-phone-nav/sha256-check"

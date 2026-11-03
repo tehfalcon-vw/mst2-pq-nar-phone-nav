@@ -29,6 +29,25 @@ mpq_fingerprint() {
   echo "sha256=$h size=${1:-unreadable}"
 }
 
+mpq_report() {
+  echo "MST2-PQ phone navigation compatibility report"
+  echo "HMI version:"
+  sed -n 's/^VERSION=//p' $HMI_SH | head -1
+  echo "MIBHMI.jxe fingerprint:"
+  mpq_fingerprint /tsd/hmi/ifs/MIBHMI.jxe
+  echo "GAL fingerprint:"
+  mpq_fingerprint $GAL
+  echo "iAP2 fingerprint:"
+  mpq_fingerprint /lib/dll/ipod-drvr-iap2.so
+  echo "Known variant:"
+  mpq_variant 2>/dev/null || echo "unknown"
+}
+
+mpq_save_report() {
+  MPQ_REPORT=$1/mst2-pq-phone-nav-diagnostics.txt
+  mpq_report > $MPQ_REPORT && [ -s $MPQ_REPORT ]
+}
+
 mpq_variant() {
   if mpq_matches /tsd/hmi/ifs/MIBHMI.jxe DEBB6893BC907432BC58E079567F31135572DA2F8DC05E2DE12948E5AE8EDC93; then
     { mpq_matches $GAL B030FFF517D641D3D6B72DD748565ADEC58368A1875C8E5FD58C83DD03116EB ||

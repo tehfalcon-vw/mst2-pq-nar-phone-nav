@@ -70,9 +70,10 @@ Navigation page in the cluster. Do not test while driving.
 The installer saves stock files on the unit and in
 `mst2-pq-phone-nav-backup` on the SD card. Keep the SD-card copy.
 
-If installation reports an unknown HMI/GAL combination, choose **Show compatibility
-diagnostics (read-only)** and report the HMI, GAL and iAP2 SHA-256/size lines. The
-diagnostic changes nothing. Unknown GAL builds are not overwritten because they may
+If installation reports an unknown HMI/GAL combination, it automatically writes
+`mst2-pq-phone-nav-diagnostics.txt` to the SD-card root. You can also create it with
+**Export compatibility report to SD card**. Share that file; the diagnostic changes
+no unit files. Unknown GAL builds are not overwritten because they may
 contain an existing App-Connect or FEC patch that must be preserved deliberately.
 
 ## Emergency disable and uninstall
