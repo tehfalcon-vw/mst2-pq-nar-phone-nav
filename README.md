@@ -101,6 +101,14 @@ follow-up setting; it does not suppress ParkPilot failure notifications.
 The installer saves stock files on the unit and in
 `mst2-pq-phone-nav-backup` on the SD card. Keep the SD-card copy.
 
+### Updating an earlier beta
+
+Merge the new release's `custom` folder onto the Toolbox card, then repeat **Toolbox →
+Customization → Greenmenu → Copy custom GEM scripts to unit** and reboot. This refreshes
+the installer and adds any new menu actions. After reboot, open
+**MST2_PQ_Phone_Nav → Install / update** and complete the new one-boot trial before
+choosing **Enable permanently** again.
+
 If installation reports an unknown HMI/GAL combination, it automatically writes
 `mst2-pq-phone-nav-diagnostics.txt` to the SD-card root. You can also create it with
 **Export compatibility report to SD card**. Share that file; the diagnostic changes
