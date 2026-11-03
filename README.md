@@ -89,18 +89,18 @@ unavailable** message.
 4. Engage reverse, wait for the camera image, then shift out of reverse while stopped.
    The camera page should close immediately without the ParkPilot error.
 5. Reopen the menu and choose **Aftermarket RVC: show status**. It should report
-   **Stock reverse-listener bridge: stock-listener-active** and
-   **Reverse callback: reverse=0** after shifting out of reverse. **Last close request**
-   should show `reverse-exit delivered=1`.
+   **Car-service gear bridge: car-service-listener-active** and a **Gear callback**
+   with a non-reverse mode after shifting out of reverse. **Last close request** should
+   show `reverse-exit mode=... delivered=1`.
 6. Repeat several times, then test normal parking-sensor activation and its on-screen
    close button. Genuine parking-sensor faults must still be shown.
 
-The fix is independent of CarPlay and Android Auto. It observes the firmware's existing
-stock reverse-gear callback. When that callback
-changes from reverse to non-reverse, it sends the stock `CLOSE_PARKING` event—the same
-close path used by the HMI. It does not add another vehicle-state subscription, write a
-vehicle adaptation or suppress ParkPilot failures. To undo it, choose **Aftermarket RVC:
-disable instant close** and allow the automatic reboot.
+The fix is independent of CarPlay and Android Auto. It observes the always-running stock
+car service's existing gear callback. When mode 2 (reverse) changes to a non-reverse
+mode, it sends the stock `CLOSE_PARKING` event—the same close path used by the HMI. It
+does not add another vehicle-state subscription, write a vehicle adaptation or suppress
+ParkPilot failures. To undo it, choose **Aftermarket RVC: disable instant close** and
+allow the automatic reboot.
 
 The installer saves stock files on the unit and in
 `mst2-pq-phone-nav-backup` on the SD card. Keep the SD-card copy.

@@ -5,14 +5,14 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 
-/** Bridges the stock reverse-gear callback to the stock parking close event. */
+/** Bridges the always-running stock car-service gear callback to parking close. */
 public final class RvcFollowUp {
     private static final String ROOT = "/tsd/var/mst2-pq-phone-nav";
     private static final String CONFIG = ROOT + "/rvc-instant";
     private static final String INIT = ROOT + "/rvc-gear-init";
     private static final String CALLBACK = ROOT + "/rvc-gear-callback";
     private static final String CLOSE = ROOT + "/rvc-close-request";
-    private static int lastReverse = -1;
+    private static int lastMode = -1;
 
     private RvcFollowUp() {}
 
@@ -20,17 +20,17 @@ public final class RvcFollowUp {
         return readInt(CONFIG, 0) == 1;
     }
 
-    /** Called by the firmware's existing DSIGeneralVehicleStates reverse listener. */
-    public static synchronized void updateReverse(boolean reverse) {
-        try { writeText(INIT, "stock-listener-active"); } catch (Throwable t) {}
-        try { writeText(CALLBACK, reverse ? "reverse=1" : "reverse=0"); } catch (Throwable t) {}
-        int previous = lastReverse;
-        lastReverse = reverse ? 1 : 0;
-        if (enabled() && previous == 1 && !reverse) {
+    /** Called by HsmTargetCarService's existing attribute-15 listener. R is mode 2. */
+    public static synchronized void updateGear(int mode) {
+        try { writeText(INIT, "car-service-listener-active"); } catch (Throwable t) {}
+        try { writeText(CALLBACK, "mode=" + mode); } catch (Throwable t) {}
+        int previous = lastMode;
+        lastMode = mode;
+        if (enabled() && previous == 2 && mode != 2) {
             try {
                 boolean delivered = de.vw.mib.asl.framework.internal.framework.ServiceManager.eventMain
                         .getServiceRegister().triggerObserver(1073745153);
-                writeText(CLOSE, delivered ? "reverse-exit delivered=1" : "reverse-exit delivered=0");
+                writeText(CLOSE, delivered ? "reverse-exit mode=" + mode + " delivered=1" : "reverse-exit mode=" + mode + " delivered=0");
             } catch (Throwable t) {
                 try { writeText(CLOSE, "failed"); } catch (Throwable ignored) {}
             }
