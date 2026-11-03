@@ -1,10 +1,5 @@
 #!/bin/ksh
 . /tsd/etc/persistence/esd/scripts/mpq_common.sh
-[ ! -s $MPQ/rvc-followup-stock -o -f $MPQ/rvc-followup-restored ] || {
-  echo "Aborted: restore the stock RVC delay first."
-  echo "Choose Aftermarket RVC: restore stock delay, allow the reboot, then uninstall."
-  exit 1
-}
 [ -s $MPQ/backup/runHMI.sh -a -s $MPQ/backup/cpu.conf -a -s $MPQ/backup/libext.google.gal.receiver.so ] || { echo "Aborted: stock backup is incomplete."; exit 1; }
 mpq_mount_rw
 mpq_put $MPQ/backup/runHMI.sh $HMI_SH 755 &&

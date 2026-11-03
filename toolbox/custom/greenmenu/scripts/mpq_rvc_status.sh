@@ -6,12 +6,6 @@ if [ "$(sed -n '1p' $MPQ/rvc-instant 2>/dev/null)" = 1 ]; then
 else
   echo "Requested: OFF"
 fi
-echo "DSI initialization: $(sed -n '1p' $MPQ/rvc-dsi-init 2>/dev/null || echo not-run)"
-echo "DSI callback: $(sed -n '1p' $MPQ/rvc-dsi-callback 2>/dev/null || echo not-received)"
-if [ -s $MPQ/rvc-followup-stock ]; then
-  echo "Saved stock follow-up value: $(sed -n '1p' $MPQ/rvc-followup-stock)"
-else
-  echo "Saved stock follow-up value: not captured"
-fi
-[ -f $MPQ/rvc-instant-applied ] && echo "Zero delay verified: YES" || echo "Zero delay verified: NO"
-[ -f $MPQ/rvc-followup-restored ] && echo "Stock value restored: YES" || echo "Stock value restored: NO"
+echo "Gear DSI initialization: $(sed -n '1p' $MPQ/rvc-gear-init 2>/dev/null || echo not-run)"
+echo "Gear callback: $(sed -n '1p' $MPQ/rvc-gear-callback 2>/dev/null || echo not-received)"
+echo "Last close request: $(sed -n '1p' $MPQ/rvc-close-request 2>/dev/null || echo none)"

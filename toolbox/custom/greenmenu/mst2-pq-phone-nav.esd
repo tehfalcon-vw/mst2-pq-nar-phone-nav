@@ -28,7 +28,7 @@ script
     label "Aftermarket RVC: instant close (reboot)"
 script
     value sys 1 0x0100 "/tsd/etc/persistence/esd/scripts/mpq_rvc_instant_off.sh"
-    label "Aftermarket RVC: restore stock delay (reboot)"
+    label "Aftermarket RVC: disable instant close (reboot)"
 script
     value sys 1 0x0100 "/tsd/etc/persistence/esd/scripts/mpq_rvc_status.sh"
     label "Aftermarket RVC: show status"

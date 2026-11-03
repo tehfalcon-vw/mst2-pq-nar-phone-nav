@@ -88,16 +88,16 @@ unavailable** message.
 3. Choose **Aftermarket RVC: instant close**. The unit reboots automatically.
 4. Engage reverse, wait for the camera image, then shift out of reverse while stopped.
    The camera page should close immediately without the ParkPilot error.
-5. Reopen the menu and choose **Aftermarket RVC: show status**. Continue only if it
-   reports **DSI initialization: notification**, a received callback,
-   **Zero delay verified: YES**, and a saved stock value.
+5. Reopen the menu and choose **Aftermarket RVC: show status**. It should report
+   **Gear DSI initialization: notification** and a callback with `valid=1`.
 6. Repeat several times, then test normal parking-sensor activation and its on-screen
    close button. Genuine parking-sensor faults must still be shown.
 
-The first successful application stores the unit's original VPS follow-up value before
-requesting zero delay. To undo the change, choose **Aftermarket RVC: restore stock
-delay** and allow its automatic reboot. This feature changes only the dedicated camera
-follow-up setting; it does not suppress ParkPilot failure notifications.
+The fix watches the firmware's live automatic-transmission mode. When it sees the
+supported reverse value (`R = 2`) change to a non-reverse value, it sends the stock
+`CLOSE_PARKING` event—the same close path used by the HMI. It does not write a vehicle
+adaptation or suppress ParkPilot failures. To undo it, choose **Aftermarket RVC: disable
+instant close** and allow the automatic reboot.
 
 The installer saves stock files on the unit and in
 `mst2-pq-phone-nav-backup` on the SD card. Keep the SD-card copy.
@@ -121,10 +121,9 @@ contain an existing App-Connect or FEC patch that must be preserved deliberately
 To force the mod off before the HMI starts, create an empty file named
 `mst2-pq-phone-nav-disable` in the root of the Toolbox SD card, insert it, and boot.
 
-For a normal removal, first choose **Aftermarket RVC: restore stock delay** if the RVC
-fix was ever enabled and allow that reboot to finish. Then open the same menu, choose
-**Uninstall and restore stock files**, wait for success, and reboot. Uninstall refuses
-to continue while an original RVC value is waiting to be restored.
+For a normal removal, choose **Uninstall and restore stock files**, wait for success,
+and reboot. The RVC watcher is runtime-only, so removing the overlay restores stock
+behavior without leaving a vehicle setting behind.
 
 ## Tester report
 

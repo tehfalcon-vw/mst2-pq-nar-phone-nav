@@ -1,68 +1,40 @@
 package com.mst2.rvc;
 
-import de.adi961.miblogger.MIBLogger;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileReader;
-import org.dsi.ifc.carparkingsystem.DSICarParkingSystem;
 
-/** Safely changes the factory VPS post-reverse follow-up time for aftermarket cameras. */
+/** Detects the supported P0478T reverse-to-forward/neutral/park transition. */
 public final class RvcFollowUp {
     private static final String ROOT = "/tsd/var/mst2-pq-phone-nav";
     private static final String CONFIG = ROOT + "/rvc-instant";
-    private static final String BACKUP = ROOT + "/rvc-followup-stock";
-    private static final String APPLIED = ROOT + "/rvc-instant-applied";
-    private static final String RESTORED = ROOT + "/rvc-followup-restored";
-    private static final String INIT = ROOT + "/rvc-dsi-init";
-    private static final String CALLBACK = ROOT + "/rvc-dsi-callback";
+    private static final String INIT = ROOT + "/rvc-gear-init";
+    private static final String CALLBACK = ROOT + "/rvc-gear-callback";
+    private static final String CLOSE = ROOT + "/rvc-close-request";
+    private static int lastMode = -1;
 
     private RvcFollowUp() {}
 
-    /** Register the parking DSI only when an enable or restore operation is pending. */
-    public static boolean actionNeeded() {
-        return enabled() || new File(BACKUP).isFile();
+    public static boolean enabled() {
+        return readInt(CONFIG, 0) == 1;
     }
 
     public static void markInit(String stage) {
         try { writeText(INIT, stage); } catch (Throwable t) {}
     }
 
-    /** Called from the stock DSI notification path; valid=1 means the value is authoritative. */
-    public static void update(DSICarParkingSystem service, int value, int valid) {
-        try { writeText(CALLBACK, "value=" + value + " valid=" + valid); } catch (Throwable t) {}
-        if (service == null || valid != 1) return;
-        try {
-            if (enabled()) {
-                delete(RESTORED);
-                if (!new File(BACKUP).isFile()) writeInt(BACKUP, value);
-                if (value != 0) {
-                    service.setVPSFollowUpTime(0);
-                    MIBLogger.getInstance().info("RVC instant close: requested VPS follow-up time 0");
-                } else {
-                    touch(APPLIED);
-                    MIBLogger.getInstance().info("RVC instant close: VPS follow-up time verified at 0");
-                }
-                return;
-            }
-
-            int stock = readInt(BACKUP, -1);
-            if (stock < 0) return;
-            delete(APPLIED);
-            if (value != stock) {
-                service.setVPSFollowUpTime(stock);
-                MIBLogger.getInstance().info("RVC instant close: requested stock VPS follow-up time " + stock);
-            } else {
-                touch(RESTORED);
-                MIBLogger.getInstance().info("RVC instant close: stock VPS follow-up time restored");
-            }
-        } catch (Throwable t) {
-            MIBLogger.getInstance().error("RVC follow-up update failed: " + t);
-        }
+    /** Returns true exactly once on each valid automatic-transmission R -> non-R edge. */
+    public static synchronized boolean updateGear(int mode, int valid) {
+        try { writeText(CALLBACK, "mode=" + mode + " valid=" + valid); } catch (Throwable t) {}
+        if (valid != 1) return false;
+        int previous = lastMode;
+        lastMode = mode;
+        return enabled() && previous == 2 && mode != 2;
     }
 
-    private static boolean enabled() {
-        return readInt(CONFIG, 0) == 1;
+    public static void markClose(int mode) {
+        try { writeText(CLOSE, "reverse-exit mode=" + mode); } catch (Throwable t) {}
     }
 
     private static int readInt(String path, int fallback) {
@@ -79,10 +51,6 @@ public final class RvcFollowUp {
         }
     }
 
-    private static void writeInt(String path, int value) throws Exception {
-        writeText(path, Integer.toString(value));
-    }
-
     private static void writeText(String path, String value) throws Exception {
         File dir = new File(ROOT);
         dir.mkdirs();
@@ -96,12 +64,4 @@ public final class RvcFollowUp {
         if (!tmp.renameTo(dest)) throw new Exception("cannot commit " + path);
     }
 
-    private static void touch(String path) throws Exception {
-        FileOutputStream out = new FileOutputStream(path);
-        out.close();
-    }
-
-    private static void delete(String path) {
-        try { new File(path).delete(); } catch (Throwable t) {}
-    }
 }
