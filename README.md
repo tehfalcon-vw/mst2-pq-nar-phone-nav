@@ -57,13 +57,15 @@ Navigation page in the cluster. Do not test while driving.
 5. Open **Customization → MST2-PQ NAR CarPlay + Android Auto navigation arrows**.
 6. Choose **Install / update**. An iAP2 fingerprint warning is allowed and prints the
    unit's actual SHA-256 and size. If the HMI/GAL result says `Aborted`, stop; never bypass it.
-7. Reboot. The next boot is a one-boot trial.
+7. Reboot. The next boot is a one-boot trial. Every install/update resets projection
+   scaling to stock 100% before this trial.
 8. Connect a phone, start a route in CarPlay or Android Auto, and select the cluster's
    factory Navigation page. Play audio and verify title, artist and album in the MFD
    audio page.
 9. If the radio, phone connection, controls and MFD remain stable, return to the same
    menu and choose **Enable permanently**, then reboot once more.
-10. The first trial uses stock 100% projection scale. After the base features pass,
+10. The first trial uses stock 100% projection scale. After navigation, media metadata,
+    CarPlay/Android Auto controls and reconnect all pass,
     choose **Projection scale: 115%**, reboot, and verify CarPlay and Android Auto touch
     alignment. Choose **Projection scale: stock 100%** and reboot to revert the scale.
 

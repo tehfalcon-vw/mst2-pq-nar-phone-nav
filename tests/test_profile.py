@@ -45,6 +45,14 @@ class ProfileTest(unittest.TestCase):
         self.assertIn("echo 100 > $MPQ/scale", install)
         self.assertIn("mpq_scale_100.sh", menu)
         self.assertIn("mpq_scale_115.sh", menu)
+        boot = (ROOT / "toolbox/custom/mst2-pq-phone-nav/runHMI.block").read_text()
+        self.assertIn("-Xbootclasspath/p:$MPQ/mst2-pq-nar-phone-nav.jar", boot)
+        self.assertNotIn('BOOTCLASSPATH="$BOOTCLASSPATH:$MPQ/', boot)
+
+    def test_every_update_resets_scale_for_trial(self):
+        install = (ROOT / "toolbox/custom/greenmenu/scripts/mpq_install.sh").read_text()
+        self.assertIn("echo 100 > $MPQ/scale", install)
+        self.assertNotIn("[ -s $MPQ/scale ]", install)
 
     def test_iap2_mismatch_uses_runtime_guards(self):
         install = (ROOT / "toolbox/custom/greenmenu/scripts/mpq_install.sh").read_text()

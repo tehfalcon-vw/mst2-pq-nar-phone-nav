@@ -1,6 +1,8 @@
 /dist/
 /java/build*/
 /java/verify-*/
+/java/*.javap.txt
+/java/stock-carplay-javap.txt
 /java/*.jar
 /native/build/
 /aa-shim/build/

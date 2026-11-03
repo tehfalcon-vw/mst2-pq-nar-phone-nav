@@ -24,7 +24,7 @@ VARIANT=$(mpq_variant) || {
   exit 1
 }
 mkdir -p $MPQ/backup $CARD/mst2-pq-phone-nav-backup
-[ -s $MPQ/scale ] || echo 100 > $MPQ/scale
+echo 100 > $MPQ/scale
 [ -s $MPQ/backup/runHMI.sh ] || cp -p $HMI_SH $MPQ/backup/runHMI.sh
 [ -s $MPQ/backup/cpu.conf ] || cp -p $CPU_CONF $MPQ/backup/cpu.conf
 [ -s $MPQ/backup/libext.google.gal.receiver.so ] || cp -p $GAL $MPQ/backup/libext.google.gal.receiver.so
@@ -42,5 +42,5 @@ mpq_mount_ro
 rm -f $MPQ/enabled
 touch $MPQ/trial /dev/shmem/mst2-cluster-nav-armed
 echo "Installed for $VARIANT. NEXT boot is a one-boot trial."
-echo "Projection scale is 100% for the first trial. Select 115% after validation."
+echo "Projection scale was reset to 100% for this trial. Select 115% only after validation."
 echo "After a successful drive, choose Enable permanently."
