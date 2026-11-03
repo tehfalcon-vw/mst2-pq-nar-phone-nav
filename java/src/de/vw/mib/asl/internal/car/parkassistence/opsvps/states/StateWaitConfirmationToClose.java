@@ -59,6 +59,10 @@ public class StateWaitConfirmationToClose extends StateBase {
         this.target.info().append("OpsVps: dsiCarParkingSystemAcknowledgeParkingPopup ").append(displayContent.toString()).append(" in class ").append(this.getName()).log();
         if (OpsVpsHsmTarget.isContentToCancel(displayContent)) {
             this.target.storeDisplayContent(displayContent);
+            if (com.mst2.rvc.RvcFollowUp.enabled()) {
+                com.mst2.rvc.RvcFollowUp.recordSignal("wait-close", "hold-after-ack");
+                return;
+            }
             this.trans(this.target.statePopupOff);
         } else {
             this.target.info().append("OpsVps: dsiCarParkingSystemAcknowledgeParkingPopup not from cancel request ").log();
@@ -74,7 +78,14 @@ public class StateWaitConfirmationToClose extends StateBase {
 
     public void dsiCarParkingSystemUpdateVPSFailure(boolean bl, int n) {
         com.mst2.rvc.RvcFollowUp.recordSignal("wait-close", "vps-failure=" + (bl ? 1 : 0) + " v=" + n);
-        if (com.mst2.rvc.RvcFollowUp.interceptVpsFailure(bl, n, "wait-close")) return;
+        if (com.mst2.rvc.RvcFollowUp.interceptVpsFailure(bl, n, "wait-close")) {
+            try {
+                this.trans(this.target.statePopupOff);
+            } catch (Exception exception) {
+                com.mst2.rvc.RvcFollowUp.recordSignal("wait-close", "off-transition-failed");
+            }
+            return;
+        }
         this.target.setVPSFailure(bl);
     }
 

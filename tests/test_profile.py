@@ -115,6 +115,10 @@ class ProfileTest(unittest.TestCase):
         self.assertIn('interceptVpsFailure(bl, n, "wait-close")', wait_close)
         self.assertIn('this.target.setVPSFailure(bl)', wait_close)
         self.assertIn('recordSignal("wait-close"', wait_close)
+        self.assertIn('recordSignal("wait-close", "hold-after-ack")', wait_close)
+        self.assertIn('if (com.mst2.rvc.RvcFollowUp.enabled())', wait_close)
+        self.assertGreater(wait_close.find('this.trans(this.target.statePopupOff)', wait_close.find('interceptVpsFailure')),
+                           wait_close.find('interceptVpsFailure'))
         self.assertIn("dsiCarParkingSystemUpdateVPSSystemOnOff", vps)
         self.assertIn("dsiCarParkingSystemRequestParkingPopup", vps)
         self.assertIn("dsiCarParkingSystemAcknowledgeParkingPopup", vps)

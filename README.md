@@ -113,6 +113,10 @@ unchanged. Failure-channel interception remains as a fallback for other unit cod
 Some P0478T units deliver the camera failure only after the HSM has left the active VPS
 state and entered its stock wait-for-close state. That state is also covered, preventing
 the late failure from bubbling to the parent handler after a successful close request.
+When this optional mode is enabled, a completed close acknowledgement is held in that
+wait state until the late VPS failure is consumed; the state then transitions to the
+normal popup-off state. A new legitimate popup request can still reopen parking if no
+late failure arrives.
 
 **Warning:** this optional mode closes parking whenever the active camera state exits,
 including a transition away from the camera for a reason other than leaving reverse.
