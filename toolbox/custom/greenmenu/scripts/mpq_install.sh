@@ -23,12 +23,12 @@ VARIANT=$(mpq_variant) || {
   echo "No unit files were changed."
   exit 1
 }
-mkdir -p $MPQ/backup $CARD/mst2-pq-phone-nav-backup
-echo 100 > $MPQ/scale
-[ -s $MPQ/backup/runHMI.sh ] || cp -p $HMI_SH $MPQ/backup/runHMI.sh
-[ -s $MPQ/backup/cpu.conf ] || cp -p $CPU_CONF $MPQ/backup/cpu.conf
-[ -s $MPQ/backup/libext.google.gal.receiver.so ] || cp -p $GAL $MPQ/backup/libext.google.gal.receiver.so
-cp -p $MPQ/backup/* $CARD/mst2-pq-phone-nav-backup/
+mkdir -p $MPQ/backup $CARD/mst2-pq-phone-nav-backup || { echo "Aborted: backup directories failed. Unit was not rebooted."; exit 1; }
+echo 100 > $MPQ/scale || { echo "Aborted: scale reset failed. Unit was not rebooted."; exit 1; }
+[ -s $MPQ/backup/runHMI.sh ] || cp -p $HMI_SH $MPQ/backup/runHMI.sh || exit 1
+[ -s $MPQ/backup/cpu.conf ] || cp -p $CPU_CONF $MPQ/backup/cpu.conf || exit 1
+[ -s $MPQ/backup/libext.google.gal.receiver.so ] || cp -p $GAL $MPQ/backup/libext.google.gal.receiver.so || exit 1
+cp -p $MPQ/backup/* $CARD/mst2-pq-phone-nav-backup/ || exit 1
 mpq_put $SRC/mst2-pq-nar-phone-nav.jar $MPQ/mst2-pq-nar-phone-nav.jar 644 || exit 1
 mpq_mount_rw
 mkdir -p $LIBDIR
@@ -36,11 +36,16 @@ mpq_put $SRC/libmcn_sal.so $LIBDIR/libmcn_sal.so 755 || { mpq_mount_ro; exit 1; 
 mpq_put $SRC/libmcn_ipod.so $LIBDIR/libmcn_ipod.so 755 || { mpq_mount_ro; exit 1; }
 mpq_put $SRC/libext.google.gal.receiver.$VARIANT.so $GAL 755 || { mpq_mount_ro; exit 1; }
 mpq_rewrite $HMI_SH mpq_hmi_with_block $SRC/runHMI.block || { mpq_mount_ro; exit 1; }
-mpq_unpreload > $MPQ/cpu.clean && mpq_rewrite $CPU_CONF mpq_preload $MPQ/cpu.clean
+mpq_unpreload > $MPQ/cpu.clean && mpq_rewrite $CPU_CONF mpq_preload $MPQ/cpu.clean || {
+  rm -f $MPQ/cpu.clean
+  mpq_mount_ro
+  echo "Aborted: cpu.conf update failed. Unit was not rebooted."
+  exit 1
+}
 rm -f $MPQ/cpu.clean
-mpq_mount_ro
-rm -f $MPQ/enabled
-touch $MPQ/trial /dev/shmem/mst2-cluster-nav-armed
+mpq_mount_ro || { echo "Aborted: read-only remount failed. Unit was not rebooted."; exit 1; }
+rm -f $MPQ/enabled && touch $MPQ/trial /dev/shmem/mst2-cluster-nav-armed || { echo "Aborted: trial marker failed. Unit was not rebooted."; exit 1; }
 echo "Installed for $VARIANT. NEXT boot is a one-boot trial."
 echo "Projection scale was reset to 100% for this trial. Select 125% only after validation."
 echo "After a successful drive, choose Enable permanently."
+mpq_reboot

@@ -56,6 +56,24 @@ class ProfileTest(unittest.TestCase):
         self.assertIn("echo 100 > $MPQ/scale", install)
         self.assertNotIn("[ -s $MPQ/scale ]", install)
 
+    def test_successful_install_and_enable_auto_reboot(self):
+        common = (ROOT / "toolbox/custom/greenmenu/scripts/mpq_common.sh").read_text()
+        install = (ROOT / "toolbox/custom/greenmenu/scripts/mpq_install.sh").read_text()
+        enable = (ROOT / "toolbox/custom/greenmenu/scripts/mpq_enable.sh").read_text()
+        self.assertIn("util_reboot.sh", common)
+        self.assertIn("sleep 2; ksh $reboot_script", common)
+        self.assertGreater(install.rfind("mpq_reboot"), install.rfind("touch $MPQ/trial"))
+        self.assertIn("Unit was not rebooted", install)
+        self.assertGreater(enable.rfind("mpq_reboot"), enable.rfind("touch $MPQ/enabled"))
+        self.assertIn("Enable failed. Unit was not rebooted", enable)
+
+    def test_readme_has_toolbox_greenmenu_bootstrap(self):
+        readme = (ROOT / "README.md").read_text()
+        self.assertIn("Customization", readme)
+        self.assertIn("Greenmenu", readme)
+        self.assertIn("Copy custom GEM scripts to unit", readme)
+        self.assertIn("MST2_PQ_Phone_Nav", readme)
+
     def test_iap2_mismatch_uses_runtime_guards(self):
         install = (ROOT / "toolbox/custom/greenmenu/scripts/mpq_install.sh").read_text()
         hook = (ROOT / "native/src/ipod/ipod.c").read_text()

@@ -65,6 +65,15 @@ mpq_variant() {
 mpq_mount_rw() { . /tsd/etc/persistence/esd/scripts/util_mount.sh; }
 mpq_mount_ro() { . /tsd/etc/persistence/esd/scripts/util_mount_ro.sh; }
 
+mpq_reboot() {
+  reboot_script=/tsd/etc/persistence/esd/scripts/util_reboot.sh
+  [ -f $reboot_script ] || { echo "Automatic reboot helper is unavailable; reboot through Toolbox."; return 1; }
+  echo "Success. Unit will reboot automatically."
+  sync
+  ( sleep 2; ksh $reboot_script >/dev/null 2>&1 ) >/dev/null 2>&1 &
+  return 0
+}
+
 mpq_strip_hmi() { sed '/^# >>> mst2-pq-phone-nav/,/^# <<< mst2-pq-phone-nav/d' "$1"; }
 mpq_hmi_with_block() { mpq_strip_hmi $HMI_SH | sed '/^BOOTCLASSPATH="\$IFSDIR\/tsd.mibstd2.hmi.v2.jxe:/r '"$1"; }
 

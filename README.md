@@ -20,8 +20,9 @@ included. The installer uses its bundled QNX SHA-256 verifier and requires the e
 HMI and Android Auto library. A differing iAP2 hash is reported as a warning because the hook resolves symbols dynamically
 and validates every modified slot at runtime; an incompatible driver remains stock.
 
-This has been built and statically checked against the supplied P0478T firmware but has
-not yet been tested in a vehicle. Treat it as an early beta.
+This has been built and statically checked against the supplied P0478T firmware. The
+`cpu` variant, CarPlay controls and 125% scale have been validated on one physical NAR
+unit; other vehicles, clusters, phones and the `cpuplus` variant remain beta coverage.
 
 ## What it adds
 
@@ -49,22 +50,24 @@ Navigation page in the cluster. Do not test while driving.
 
 ## Install the beta
 
-1. Download `mst2-pq-nar-phone-nav-p0478t-beta.zip` from the latest release.
+1. Download the P0478T ZIP from the latest release.
 2. Extract it and open the included `sd` folder.
 3. Merge its `custom` folder into the root of your existing MIB STD2 Toolbox SD card.
    Keep all Toolbox files already on the card.
 4. Insert the card and open the Green Engineering Menu.
-5. Open **Customization → MST2-PQ NAR CarPlay + Android Auto navigation arrows**.
-6. Choose **Install / update**. An iAP2 fingerprint warning is allowed and prints the
+5. Open **Toolbox → Customization → Greenmenu**.
+6. Choose **Copy custom GEM scripts to unit**, then reboot. After that reboot,
+   **MST2_PQ_Phone_Nav** appears under **Toolbox → Customization**.
+7. Open **MST2_PQ_Phone_Nav** and choose **Install / update**. An iAP2 fingerprint warning is allowed and prints the
    unit's actual SHA-256 and size. If the HMI/GAL result says `Aborted`, stop; never bypass it.
-7. Reboot. The next boot is a one-boot trial. Every install/update resets projection
-   scaling to stock 100% before this trial.
-8. Connect a phone, start a route in CarPlay or Android Auto, and select the cluster's
+8. After a successful installation, the unit reboots automatically into a one-boot
+   trial. Every install/update resets projection scaling to stock 100%.
+9. Connect a phone, start a route in CarPlay or Android Auto, and select the cluster's
    factory Navigation page. Play audio and verify title, artist and album in the MFD
    audio page.
-9. If the radio, phone connection, controls and MFD remain stable, return to the same
-   menu and choose **Enable permanently**, then reboot once more.
-10. The first trial uses stock 100% projection scale. After navigation, media metadata,
+10. If the radio, phone connection, controls and MFD remain stable, return to the same
+    menu and choose **Enable permanently**. A successful enable reboots automatically.
+11. The first trial uses stock 100% projection scale. After navigation, media metadata,
     CarPlay/Android Auto controls and reconnect all pass,
     choose **Projection scale: 125%**, reboot, and verify CarPlay and Android Auto touch
     alignment. Choose **Projection scale: stock 100%** and reboot to revert the scale.
