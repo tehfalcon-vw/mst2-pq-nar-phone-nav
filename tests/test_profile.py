@@ -1,4 +1,5 @@
 import json
+import hashlib
 import pathlib
 import unittest
 
@@ -57,9 +58,18 @@ class ProfileTest(unittest.TestCase):
         install = (ROOT / "toolbox/custom/greenmenu/scripts/mpq_install.sh").read_text()
         diag = (ROOT / "toolbox/custom/greenmenu/scripts/mpq_diagnostics.sh").read_text()
         self.assertIn("unknown P0478T cpu/cpuplus GAL combination", install)
-        self.assertIn("cksum $GAL", install)
+        self.assertIn("mpq_fingerprint $GAL", install)
         self.assertIn("This action does not change files", diag)
-        self.assertIn("cksum /tsd/hmi/ifs/MIBHMI.jxe", diag)
+        self.assertIn("mpq_fingerprint /tsd/hmi/ifs/MIBHMI.jxe", diag)
+
+    def test_bundled_qnx_hash_helper(self):
+        helper = ROOT / "toolbox/custom/mst2-pq-phone-nav/sha256-check"
+        self.assertEqual(helper.stat().st_size, 9051)
+        self.assertEqual(hashlib.sha256(helper.read_bytes()).hexdigest(),
+                         "0c510051f2e79cad6d7868d94abda76310f1fff960a2b6a9ef267106a85bb301")
+        common = (ROOT / "toolbox/custom/greenmenu/scripts/mpq_common.sh").read_text()
+        self.assertNotIn("cksum", common)
+        self.assertIn("sha256-check", common)
 
 if __name__ == "__main__":
     unittest.main()

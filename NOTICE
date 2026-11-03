@@ -6,3 +6,7 @@ AAtoKombi portions retain their GPL-3.0 license. CarPlay route-guidance portions
 retain their CC BY-NC-SA 4.0 license. Scale and media-reference portions retain
 their MIT licenses. See the four license files in this repository.
 No original Volkswagen firmware archive is included.
+
+The bundled QNX SHA-256 verifier and its corresponding source are reused from
+jiangbo2571/MST2-CarPlay-Maps under GPL-3.0. It exists because stock MST2/QNX does
+not provide `cksum` or `sha256sum`.

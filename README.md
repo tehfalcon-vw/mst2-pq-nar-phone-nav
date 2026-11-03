@@ -16,8 +16,8 @@ PQ has no MOST link to the cluster, so phone map video is not part of this proje
 | Unit | TechniSat/Preh MST2-PQ (`T` suffix) |
 
 Both `stdNavi` (`cpu`) and `stdPlus` (`cpuplus`) variants from this release are
-included. The installer requires the exact HMI and Android Auto library. A differing
-iAP2 checksum is reported as a warning because the hook resolves symbols dynamically
+included. The installer uses its bundled QNX SHA-256 verifier and requires the exact
+HMI and Android Auto library. A differing iAP2 hash is reported as a warning because the hook resolves symbols dynamically
 and validates every modified slot at runtime; an incompatible driver remains stock.
 
 This has been built and statically checked against the supplied P0478T firmware but has
@@ -55,8 +55,8 @@ Navigation page in the cluster. Do not test while driving.
    Keep all Toolbox files already on the card.
 4. Insert the card and open the Green Engineering Menu.
 5. Open **Customization → MST2-PQ NAR CarPlay + Android Auto navigation arrows**.
-6. Choose **Install / update**. An iAP2 checksum warning is allowed and prints the
-   unit's actual checksum. If the HMI/GAL result says `Aborted`, stop; never bypass it.
+6. Choose **Install / update**. An iAP2 fingerprint warning is allowed and prints the
+   unit's actual SHA-256 and size. If the HMI/GAL result says `Aborted`, stop; never bypass it.
 7. Reboot. The next boot is a one-boot trial.
 8. Connect a phone, start a route in CarPlay or Android Auto, and select the cluster's
    factory Navigation page. Play audio and verify title, artist and album in the MFD
@@ -71,7 +71,7 @@ The installer saves stock files on the unit and in
 `mst2-pq-phone-nav-backup` on the SD card. Keep the SD-card copy.
 
 If installation reports an unknown HMI/GAL combination, choose **Show compatibility
-diagnostics (read-only)** and report the HMI, GAL and iAP2 `cksum`/size lines. The
+diagnostics (read-only)** and report the HMI, GAL and iAP2 SHA-256/size lines. The
 diagnostic changes nothing. Unknown GAL builds are not overwritten because they may
 contain an existing App-Connect or FEC patch that must be preserved deliberately.
 

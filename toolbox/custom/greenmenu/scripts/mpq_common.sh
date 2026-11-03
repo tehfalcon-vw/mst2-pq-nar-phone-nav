@@ -12,19 +12,32 @@ mpq_card() {
   return 1
 }
 
-mpq_cksum() {
-  f=$1; expected_size=$2; expected_crc=$3
-  set -- $(cksum "$f" 2>/dev/null)
-  [ "$2" = "$expected_size" -a "$1" = "$expected_crc" ]
+mpq_prepare_hash() {
+  MPQ_HASH=$1/custom/mst2-pq-phone-nav/sha256-check
+  chmod 755 $MPQ_HASH 2>/dev/null && [ -x $MPQ_HASH ]
+}
+
+mpq_hash() { $MPQ_HASH "$1" 2>/dev/null; }
+
+mpq_matches() {
+  [ -f "$1" ] && [ "$(mpq_hash "$1")" = "$2" ]
+}
+
+mpq_fingerprint() {
+  h=$(mpq_hash "$1") || h=unreadable
+  set -- $(wc -c < "$1" 2>/dev/null)
+  echo "sha256=$h size=${1:-unreadable}"
 }
 
 mpq_variant() {
-  if mpq_cksum /tsd/hmi/ifs/MIBHMI.jxe 42329796 2318895772; then
-    { mpq_cksum $GAL 1455784 1912803236 || mpq_cksum $GAL 1512328 1814017279; } &&
+  if mpq_matches /tsd/hmi/ifs/MIBHMI.jxe DEBB6893BC907432BC58E079567F31135572DA2F8DC05E2DE12948E5AE8EDC93; then
+    { mpq_matches $GAL B030FFF517D641D3D6B72DD748565ADEC58368A1875C8E5FD58C83DD03116EB ||
+      mpq_matches $GAL 57BC9B5B387970F4BFB0B09670B0A4D3CEC39CCAEDBB192BBA56BBE5F800F096; } &&
       { echo cpu; return 0; }
   fi
-  if mpq_cksum /tsd/hmi/ifs/MIBHMI.jxe 41745824 2584275572; then
-    { mpq_cksum $GAL 1455800 1947749194 || mpq_cksum $GAL 1512328 1567479481; } &&
+  if mpq_matches /tsd/hmi/ifs/MIBHMI.jxe E001E0A4861F5615E454FCC880F9C86E3A39282853A830A86E0AFBF1005CBEE8; then
+    { mpq_matches $GAL C80164D62B69478C7F7AB7B2719B6CED7A529D7A24C2CD386CB6C399B22AE8C2 ||
+      mpq_matches $GAL ECAEBC72D1EC5027AB36E65A65E63F3956AE8B5F8097894F8866333510471635; } &&
       { echo cpuplus; return 0; }
   fi
   return 1
