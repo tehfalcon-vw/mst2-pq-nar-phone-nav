@@ -16,6 +16,8 @@ public final class RvcFollowUp {
     private static final String SIGNALS = ROOT + "/rvc-signal-log";
     private static int signalSequence;
     private static long lastCameraExit;
+    private static boolean cameraStateActive;
+    private static boolean failureCloseSent;
 
     private RvcFollowUp() {}
 
@@ -43,10 +45,20 @@ public final class RvcFollowUp {
         }
     }
 
+    public static synchronized void cameraStateEntered(String state) {
+        cameraStateActive = true;
+        failureCloseSent = false;
+    }
+
     /** PQ P0478T exposes reverse exit only as departure from the active camera state. */
     public static synchronized void closeOnStateExit(String state) {
+        cameraStateActive = false;
         if (!enabled()) return;
         lastCameraExit = System.currentTimeMillis();
+        if (failureCloseSent) {
+            failureCloseSent = false;
+            return;
+        }
         try {
             boolean delivered = de.vw.mib.asl.framework.internal.framework.ServiceManager.eventMain
                     .getServiceRegister().triggerObserver(1073745153);
@@ -68,9 +80,13 @@ public final class RvcFollowUp {
 
     private static boolean interceptLateFailure(boolean failed, String source) {
         long elapsed = System.currentTimeMillis() - lastCameraExit;
-        if (!failed || !enabled() || lastCameraExit == 0 || elapsed < 0 || elapsed > 10000) return false;
+        boolean recentExit = lastCameraExit != 0 && elapsed >= 0 && elapsed <= 10000;
+        if (!failed || !enabled() || (!cameraStateActive && !recentExit)) return false;
         boolean intercepted = interceptFailure(true, "popup-off", source);
-        if (intercepted) lastCameraExit = 0;
+        if (intercepted) {
+            lastCameraExit = 0;
+            failureCloseSent = true;
+        }
         return intercepted;
     }
 

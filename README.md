@@ -111,10 +111,12 @@ original state transition to continue normally. With the option off, state handl
 unchanged. Failure-channel interception remains as a fallback for other unit codings.
 
 Hardware tracing confirmed that P0478T can dispatch the camera failure directly to the
-`StatePopupOff` receiver only after both the active VPS and wait-for-close states have
-exited. The final receiver therefore suppresses a true VPS or PDC failure only within
-ten seconds of an enabled camera-state exit and only when stock close-event delivery
-succeeds. Outside that narrow window its original failure handling remains unchanged.
+`StatePopupOff` receiver even while the active VPS child state is current. The final
+receiver therefore suppresses a true VPS or PDC failure only while an enabled camera
+state is active or within ten seconds after it exits, and only when stock close-event
+delivery succeeds. Outside that narrow window its original failure handling remains
+unchanged. A successfully intercepted failure also suppresses the duplicate close that
+would otherwise be sent by the following state-exit event.
 
 **Warning:** this optional mode closes parking whenever the active camera state exits,
 including a transition away from the camera for a reason other than leaving reverse.
