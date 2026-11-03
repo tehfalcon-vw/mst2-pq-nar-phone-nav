@@ -42,6 +42,18 @@ public final class RvcFollowUp {
         }
     }
 
+    /** PQ P0478T exposes reverse exit only as departure from the active camera state. */
+    public static synchronized void closeOnStateExit(String state) {
+        if (!enabled()) return;
+        try {
+            boolean delivered = de.vw.mib.asl.framework.internal.framework.ServiceManager.eventMain
+                    .getServiceRegister().triggerObserver(1073745153);
+            writeText(CLOSE, "state-exit state=" + state + (delivered ? " delivered=1" : " delivered=0"));
+        } catch (Throwable t) {
+            try { writeText(CLOSE, "state-exit state=" + state + " failed"); } catch (Throwable ignored) {}
+        }
+    }
+
     /** Returns true only when stock CLOSE_PARKING was delivered for this failure. */
     public static synchronized boolean interceptPdcFailure(boolean failed, int valid, String state) {
         try { writeText(CALLBACK, "state=" + state + " failed=" + (failed ? 1 : 0) + " valid=" + valid); } catch (Throwable t) {}

@@ -24,6 +24,9 @@ extends StateBase {
         if (diagnosticEvent == 2 || diagnosticEvent == 3 || diagnosticEvent == 4 || diagnosticEvent == 1073745153) {
             com.mst2.rvc.RvcFollowUp.recordSignal("ops-vps", "event=" + diagnosticEvent);
         }
+        if (diagnosticEvent == 4) {
+            com.mst2.rvc.RvcFollowUp.closeOnStateExit("ops-vps");
+        }
         HsmState hsmState = super.handle(eventGeneric);
         if (hsmState == null) {
             return null;

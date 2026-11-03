@@ -92,27 +92,29 @@ unavailable** message.
    **Parking-state hooks: parking-state-hooks-loaded**. When the aftermarket-camera
    fault occurs, **VPS failure callback** should normally show `state=vps` or
    `state=ops-vps` with `failed=1`. Units that report the fault through the OPS side
-   may instead populate **PDC failure callback**. **Last close request** should show
-   `vps-failure state=... delivered=1` or `pdc-failure state=... delivered=1`.
+   may instead populate **PDC failure callback**. On the confirmed P0478T hardware,
+   both failure lines can remain `not-received`; **Last close request** should show
+   `state-exit state=vps delivered=1`. Other coding may show a delivered VPS/PDC
+   failure close instead.
    Diagnostic beta builds also print an **Active-camera signal timeline** containing
    popup requests, content updates, acknowledgements, camera on/off changes and state
    entry/exit events. Include the complete timeline in the tester report.
 6. Repeat several times, then test normal parking-sensor activation and its on-screen
    close button.
 
-The fix is independent of CarPlay and Android Auto. The PQ gateway does not expose a
-usable reverse transition through the HMI transmission-mode callback, so this mode
-instead watches the stock VPS- and PDC-failure callbacks while the RVC or combined
-OPS+RVC popup is active. In P0478T the VPS failure normally bubbles to the inactive-state
-handler; this overlay catches it in the active camera state first. When a failure
-arrives, it sends the stock `CLOSE_PARKING` event—the same close path used by the HMI.
-The stock error handler is skipped only when close delivery succeeds; with the option
-off, a false failure, or a failed close delivery, stock behavior is preserved.
+The fix is independent of CarPlay and Android Auto. Hardware tracing on P0478T showed
+that this PQ unit publishes neither a usable reverse gear transition nor a VPS/PDC
+failure or camera-system callback. Its only reliable reverse-exit edge is HSM exit from
+the active VPS state. With the optional mode enabled, the overlay sends the stock
+`CLOSE_PARKING` event as that active VPS or OPS+VPS state exits, while allowing the
+original state transition to continue normally. With the option off, state handling is
+unchanged. Failure-channel interception remains as a fallback for other unit codings.
 
-**Warning:** while this optional mode is on, a genuine PDC fault reported while an
-active camera popup is displayed can be closed and suppressed. Disable the mode before
-diagnosing real parking-sensor trouble. To undo it, choose **Aftermarket RVC: disable
-instant close** and allow the automatic reboot.
+**Warning:** this optional mode closes parking whenever the active camera state exits,
+including a transition away from the camera for a reason other than leaving reverse.
+It may also suppress a genuine parking-system fault reported during the camera popup.
+Disable the mode before diagnosing parking-sensor trouble. To undo it, choose
+**Aftermarket RVC: disable instant close** and allow the automatic reboot.
 
 The installer saves stock files on the unit and in
 `mst2-pq-phone-nav-backup` on the SD card. Keep the SD-card copy.
