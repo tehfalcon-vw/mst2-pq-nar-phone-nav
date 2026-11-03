@@ -89,7 +89,8 @@ unavailable** message.
 4. Engage reverse, wait for the camera image, then shift out of reverse while stopped.
    The camera page should close immediately without the ParkPilot error.
 5. Reopen the menu and choose **Aftermarket RVC: show status**. Continue only if it
-   reports **Zero delay verified: YES** and shows a saved stock value.
+   reports **DSI initialization: notification**, a received callback,
+   **Zero delay verified: YES**, and a saved stock value.
 6. Repeat several times, then test normal parking-sensor activation and its on-screen
    close button. Genuine parking-sensor faults must still be shown.
 

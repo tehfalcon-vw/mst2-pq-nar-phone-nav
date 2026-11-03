@@ -84,13 +84,21 @@ class ProfileTest(unittest.TestCase):
         self.assertIn("setVPSFollowUpTime(0)", helper)
         self.assertIn("rvc-followup-stock", helper)
         self.assertIn("rvc-followup-restored", helper)
+        self.assertIn("rvc-dsi-callback", helper)
         self.assertNotIn("updatePDCFailure", helper)
         self.assertIn("mpq_rvc_instant_on.sh", menu)
         self.assertIn("mpq_rvc_instant_off.sh", menu)
         self.assertIn("mpq_rvc_status.sh", menu)
+        status = (ROOT / "toolbox/custom/greenmenu/scripts/mpq_rvc_status.sh").read_text()
+        self.assertIn("DSI initialization", status)
+        self.assertIn("DSI callback", status)
         self.assertIn("restore the stock RVC delay first", uninstall)
         disable = (ROOT / "toolbox/custom/greenmenu/scripts/mpq_disable.sh").read_text()
         self.assertIn("restore the stock RVC delay before disabling", disable)
+        startup = target.split("public void startup()", 1)[1].split("public void shutdown()", 1)[0]
+        initialize_dsi = target.split("public void initializeDSI()", 1)[1].split("private void initializeRvcFollowUp", 1)[0]
+        self.assertIn("initializeRvcFollowUp", startup)
+        self.assertNotIn("initializeRvcFollowUp", initialize_dsi)
 
     def test_rvc_fix_defaults_off_but_survives_updates(self):
         install = (ROOT / "toolbox/custom/greenmenu/scripts/mpq_install.sh").read_text()

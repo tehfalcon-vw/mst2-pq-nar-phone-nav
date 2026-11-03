@@ -14,6 +14,8 @@ public final class RvcFollowUp {
     private static final String BACKUP = ROOT + "/rvc-followup-stock";
     private static final String APPLIED = ROOT + "/rvc-instant-applied";
     private static final String RESTORED = ROOT + "/rvc-followup-restored";
+    private static final String INIT = ROOT + "/rvc-dsi-init";
+    private static final String CALLBACK = ROOT + "/rvc-dsi-callback";
 
     private RvcFollowUp() {}
 
@@ -22,8 +24,13 @@ public final class RvcFollowUp {
         return enabled() || new File(BACKUP).isFile();
     }
 
+    public static void markInit(String stage) {
+        try { writeText(INIT, stage); } catch (Throwable t) {}
+    }
+
     /** Called from the stock DSI notification path; valid=1 means the value is authoritative. */
     public static void update(DSICarParkingSystem service, int value, int valid) {
+        try { writeText(CALLBACK, "value=" + value + " valid=" + valid); } catch (Throwable t) {}
         if (service == null || valid != 1) return;
         try {
             if (enabled()) {
@@ -73,11 +80,15 @@ public final class RvcFollowUp {
     }
 
     private static void writeInt(String path, int value) throws Exception {
+        writeText(path, Integer.toString(value));
+    }
+
+    private static void writeText(String path, String value) throws Exception {
         File dir = new File(ROOT);
         dir.mkdirs();
         File tmp = new File(path + ".new");
         FileOutputStream out = new FileOutputStream(tmp);
-        out.write(Integer.toString(value).getBytes("US-ASCII"));
+        out.write(value.getBytes("US-ASCII"));
         out.write(10);
         out.close();
         File dest = new File(path);

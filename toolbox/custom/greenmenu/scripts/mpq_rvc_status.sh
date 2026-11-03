@@ -6,6 +6,8 @@ if [ "$(sed -n '1p' $MPQ/rvc-instant 2>/dev/null)" = 1 ]; then
 else
   echo "Requested: OFF"
 fi
+echo "DSI initialization: $(sed -n '1p' $MPQ/rvc-dsi-init 2>/dev/null || echo not-run)"
+echo "DSI callback: $(sed -n '1p' $MPQ/rvc-dsi-callback 2>/dev/null || echo not-received)"
 if [ -s $MPQ/rvc-followup-stock ]; then
   echo "Saved stock follow-up value: $(sed -n '1p' $MPQ/rvc-followup-stock)"
 else

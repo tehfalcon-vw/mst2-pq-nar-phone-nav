@@ -193,18 +193,18 @@ public class AndroidAutoTarget
         }
         this.dsiAndroidAuto2.setNotification(this.DSI_ANDROIDAUTO2_ATTR, this.dsiAndroidAuto2Listener);
 
-        // Optional aftermarket-camera fix. The parking DSI exposes the factory post-reverse
-        // VPS follow-up time directly, so no ParkPilot failure messages are suppressed.
-        try { this.initializeRvcFollowUp((DSIProxy) object); } catch (Throwable t) {
-            MIBLogger.getInstance().error("RVC follow-up initialization failed: " + t);
-        }
-
         this.dsihandler.handleDsiAndroidAuto2NavFocusRequestNotification(Constants.NAVFOCUS_NATIVE, 1);
         this.navigationHandler.navigationFocus(Constants.NAVFOCUS_NATIVE);
     }
 
     private void initializeRvcFollowUp(DSIProxy proxy) {
-        if (!com.mst2.rvc.RvcFollowUp.actionNeeded() || this.dsiCarParkingSystemListener != null) return;
+        if (!com.mst2.rvc.RvcFollowUp.actionNeeded()) return;
+        if (this.dsiCarParkingSystemListener != null) {
+            this.dsiCarParkingSystem.setNotification(13, this.dsiCarParkingSystemListener);
+            com.mst2.rvc.RvcFollowUp.markInit("notification");
+            return;
+        }
+        com.mst2.rvc.RvcFollowUp.markInit("startup");
         Class serviceClass = class$org$dsi$ifc$carparkingsystem$DSICarParkingSystem == null
                 ? (class$org$dsi$ifc$carparkingsystem$DSICarParkingSystem = AndroidAutoTarget.class$("org.dsi.ifc.carparkingsystem.DSICarParkingSystem"))
                 : class$org$dsi$ifc$carparkingsystem$DSICarParkingSystem;
@@ -212,9 +212,11 @@ public class AndroidAutoTarget
                 ? (class$org$dsi$ifc$carparkingsystem$DSICarParkingSystemListener = AndroidAutoTarget.class$("org.dsi.ifc.carparkingsystem.DSICarParkingSystemListener"))
                 : class$org$dsi$ifc$carparkingsystem$DSICarParkingSystemListener;
         this.dsiCarParkingSystem = (DSICarParkingSystem) proxy.getService(this, serviceClass);
+        com.mst2.rvc.RvcFollowUp.markInit("service");
         this.dsiCarParkingSystemListener = proxy.getAdapterFactory().createDSIListenerMethodAdapter(this, listenerClass);
         proxy.addResponseListener(this, listenerClass, this.dsiCarParkingSystemListener);
         this.dsiCarParkingSystem.setNotification(13, this.dsiCarParkingSystemListener);
+        com.mst2.rvc.RvcFollowUp.markInit("notification");
     }
 
     private void deInitializeDSI() {
@@ -222,6 +224,9 @@ public class AndroidAutoTarget
             DSIProxyFactory.getDSIProxyAPI().getDSIProxy().removeResponseListener(this, class$org$dsi$ifc$androidauto2$DSIAndroidAuto2Listener == null ? (class$org$dsi$ifc$androidauto2$DSIAndroidAuto2Listener = AndroidAutoTarget.class$("org.dsi.ifc.androidauto2.DSIAndroidAuto2Listener")) : class$org$dsi$ifc$androidauto2$DSIAndroidAuto2Listener, this.dsiAndroidAuto2Listener);
         }
         this.dsiAndroidAuto2Listener = null;
+    }
+
+    private void deInitializeRvcFollowUp() {
         if (this.dsiCarParkingSystemListener != null) {
             DSIProxy proxy = DSIProxyFactory.getDSIProxyAPI().getDSIProxy();
             Class listenerClass = class$org$dsi$ifc$carparkingsystem$DSICarParkingSystemListener == null
@@ -253,6 +258,13 @@ public class AndroidAutoTarget
         DSIProxyFactory.getDSIProxyAPI().getDSIProxy().addServiceStateListener(class$org$dsi$ifc$androidauto2$DSIAndroidAuto2 == null ? (class$org$dsi$ifc$androidauto2$DSIAndroidAuto2 = AndroidAutoTarget.class$("org.dsi.ifc.androidauto2.DSIAndroidAuto2")) : class$org$dsi$ifc$androidauto2$DSIAndroidAuto2, this);
         this.addObservers(this.OBSERVED_EVENTS);
         this.targetStarted = true;
+        try {
+            DSIProxy rvcProxy = DSIProxyFactory.getDSIProxyAPI().getDSIProxy();
+            this.initializeRvcFollowUp(rvcProxy);
+        } catch (Throwable t) {
+            com.mst2.rvc.RvcFollowUp.markInit("failed");
+            MIBLogger.getInstance().error("RVC follow-up initialization failed: " + t);
+        }
         serviceReferenceArray = ServiceManager.bundleContext.getServiceReferences((class$de$vw$mib$threads$AsyncServiceFactory == null ? (class$de$vw$mib$threads$AsyncServiceFactory = AndroidAutoTarget.class$("de.vw.mib.threads.AsyncServiceFactory")) : class$de$vw$mib$threads$AsyncServiceFactory).getName(), "(MIBThreadId=3)");
         AsyncServiceFactory asyncServiceFactory = (AsyncServiceFactory) ServiceManager.bundleContext.getService(serviceReferenceArray[0]);
         ServiceManager.bundleContext.registerService((class$de$vw$mib$popup$PopupInformationHandler == null ? (class$de$vw$mib$popup$PopupInformationHandler = AndroidAutoTarget.class$("de.vw.mib.popup.PopupInformationHandler")) : class$de$vw$mib$popup$PopupInformationHandler).getName(), asyncServiceFactory.create(this.popupHandler, new Class[]{class$de$vw$mib$popup$PopupInformationHandler == null ? (class$de$vw$mib$popup$PopupInformationHandler = AndroidAutoTarget.class$("de.vw.mib.popup.PopupInformationHandler")) : class$de$vw$mib$popup$PopupInformationHandler}), null);
@@ -271,6 +283,7 @@ public class AndroidAutoTarget
             this.deInitializeDSI();
             this.targetStarted = false;
         }
+        this.deInitializeRvcFollowUp();
         if (this.exboxGuidanceListenerImpl != null) {
             this.exboxGuidanceListenerImpl.shutdown();
         }
@@ -306,6 +319,9 @@ public class AndroidAutoTarget
             this.navigationListener.initNavServices(this.navServices);
             this.apiImpl = (ASLAndroidAutoExBoxServiceImpl) ASLAndroidAutoFactory.getAndroidAutoApi().getExBoxService();
             this.apiImpl.setTarget(this);
+        }
+        try { this.initializeRvcFollowUp(DSIProxyFactory.getDSIProxyAPI().getDSIProxy()); } catch (Throwable t) {
+            com.mst2.rvc.RvcFollowUp.markInit("failed");
         }
         if (this.isTraceEnabled()) {
             this.trace(new StringBuffer().append("==> startuphandler.isDSI2Registered() = ").append(this.startupHandler.isDSI2Registered()).toString());
