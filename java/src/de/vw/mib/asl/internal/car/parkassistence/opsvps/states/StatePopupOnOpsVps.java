@@ -20,6 +20,10 @@ extends StateBase {
     }
 
     public HsmState handle(EventGeneric eventGeneric) throws Exception {
+        int diagnosticEvent = eventGeneric.getReceiverEventId();
+        if (diagnosticEvent == 2 || diagnosticEvent == 3 || diagnosticEvent == 4 || diagnosticEvent == 1073745153) {
+            com.mst2.rvc.RvcFollowUp.recordSignal("ops-vps", "event=" + diagnosticEvent);
+        }
         HsmState hsmState = super.handle(eventGeneric);
         if (hsmState == null) {
             return null;
@@ -179,6 +183,7 @@ extends StateBase {
     }
 
     public void dsiCarParkingSystemUpdateParkingPopupContent(DisplayContent displayContent, int n) throws Exception {
+        com.mst2.rvc.RvcFollowUp.recordSignal("ops-vps", "update=" + displayContent.popup + "/" + displayContent.screen + "/" + displayContent.view + "/" + displayContent.mode + " v=" + n);
         this.target.info().append("OpsVps: dsiCarParkingSystemUpdateParkingPopupContent ").append(displayContent.toString()).append(n).append(" in class ").append(this.getName()).log();
         if (displayContent.popup == 1 || displayContent.popup == 7) {
             if (this.target.isRvcLowCoded()) {
@@ -218,5 +223,32 @@ extends StateBase {
         this.target.info().append("OpsVps: StatePopupOnOpsVps dsiCarParkingSystemUpdateVPSFailure: ").append(bl).log();
         if (com.mst2.rvc.RvcFollowUp.interceptVpsFailure(bl, n, "ops-vps")) return;
         this.target.setVPSFailure(bl);
+    }
+
+    public void dsiCarParkingSystemUpdateVPSSystemOnOff(boolean bl, int n) {
+        com.mst2.rvc.RvcFollowUp.recordSignal("ops-vps", "system-on=" + (bl ? 1 : 0) + " v=" + n);
+        if (this.target.isTraceEnabled()) {
+            this.target.trace().append("OpsVps: dsiCarParkingSystemUpdateVPSSystemOnOff ").append(bl).append(", ").append(n).log();
+        }
+    }
+
+    public void dsiCarParkingSystemRequestParkingPopup(DisplayContent displayContent) throws Exception {
+        com.mst2.rvc.RvcFollowUp.recordSignal("ops-vps", "request=" + displayContent.popup + "/" + displayContent.screen + "/" + displayContent.view + "/" + displayContent.mode);
+        this.target.info().append("OpsVps: dsiCarParkingSystemRequestParkingPopup ").append(displayContent.toString()).append(" in class ").append(this.getName()).log();
+        this.target.onRequestToShowClose(displayContent);
+        if (OpsVpsHsmTarget.isContentToCancel(displayContent)) {
+            this.target.updateModelDisplayContent(displayContent);
+            this.trans(this.target.stateWaitConfirmationToClose);
+        }
+    }
+
+    public void dsiCarParkingSystemAcknowledgeParkingPopup(DisplayContent displayContent) {
+        com.mst2.rvc.RvcFollowUp.recordSignal("ops-vps", "ack=" + displayContent.popup + "/" + displayContent.screen + "/" + displayContent.view + "/" + displayContent.mode);
+        this.target.info().append("OpsVps: dsiCarParkingSystemAcknowledgeParkingPopup ").append(displayContent.toString()).append(" in class ").append(this.getName()).log();
+        DisplayContent previous = this.target.getLastDisplayContent();
+        if (displayContent.popup != 6 && (displayContent.popup != previous.popup || displayContent.screen != previous.screen || displayContent.view != previous.view || displayContent.mode != previous.mode)) {
+            this.target.updateModelDisplayContent(displayContent);
+            this.target.storeDisplayContent(displayContent);
+        }
     }
 }

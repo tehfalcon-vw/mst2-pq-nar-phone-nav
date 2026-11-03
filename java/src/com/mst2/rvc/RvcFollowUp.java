@@ -13,6 +13,8 @@ public final class RvcFollowUp {
     private static final String CALLBACK = ROOT + "/rvc-pdc-callback";
     private static final String VPS_CALLBACK = ROOT + "/rvc-vps-callback";
     private static final String CLOSE = ROOT + "/rvc-close-request";
+    private static final String SIGNALS = ROOT + "/rvc-signal-log";
+    private static int signalSequence;
 
     private RvcFollowUp() {}
 
@@ -22,6 +24,22 @@ public final class RvcFollowUp {
 
     public static synchronized void markParkingHook(String state) {
         try { writeText(INIT, "parking-state-hooks-loaded last=" + state); } catch (Throwable t) {}
+    }
+
+    public static synchronized void recordSignal(String state, String signal) {
+        FileOutputStream out = null;
+        try {
+            File dir = new File(ROOT);
+            dir.mkdirs();
+            File file = new File(SIGNALS);
+            boolean append = file.exists() && file.length() < 1800;
+            out = new FileOutputStream(file, append);
+            String line = String.valueOf(++signalSequence) + " " + state + " " + signal + "\n";
+            out.write(line.getBytes("US-ASCII"));
+        } catch (Throwable t) {
+        } finally {
+            if (out != null) try { out.close(); } catch (Throwable t) {}
+        }
     }
 
     /** Returns true only when stock CLOSE_PARKING was delivered for this failure. */

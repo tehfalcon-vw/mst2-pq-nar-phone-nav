@@ -1,7 +1,7 @@
 #!/bin/ksh
 . /tsd/etc/persistence/esd/scripts/mpq_common.sh
 mkdir -p $MPQ || { echo "RVC restore request failed. Unit was not rebooted."; exit 1; }
-echo 0 > $MPQ/rvc-instant && rm -f $MPQ/rvc-gear-init $MPQ/rvc-gear-callback $MPQ/rvc-gear-history $MPQ/rvc-parking-hook $MPQ/rvc-vps-callback $MPQ/rvc-pdc-callback $MPQ/rvc-close-request || {
+echo 0 > $MPQ/rvc-instant && rm -f $MPQ/rvc-gear-init $MPQ/rvc-gear-callback $MPQ/rvc-gear-history $MPQ/rvc-parking-hook $MPQ/rvc-vps-callback $MPQ/rvc-pdc-callback $MPQ/rvc-close-request $MPQ/rvc-signal-log || {
   echo "RVC restore request failed. Unit was not rebooted."
   exit 1
 }

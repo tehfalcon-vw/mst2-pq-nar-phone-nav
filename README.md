@@ -94,6 +94,9 @@ unavailable** message.
    `state=ops-vps` with `failed=1`. Units that report the fault through the OPS side
    may instead populate **PDC failure callback**. **Last close request** should show
    `vps-failure state=... delivered=1` or `pdc-failure state=... delivered=1`.
+   Diagnostic beta builds also print an **Active-camera signal timeline** containing
+   popup requests, content updates, acknowledgements, camera on/off changes and state
+   entry/exit events. Include the complete timeline in the tester report.
 6. Repeat several times, then test normal parking-sensor activation and its on-screen
    close button.
 

@@ -10,3 +10,5 @@ echo "Parking-state hooks: $(sed -n '1p' $MPQ/rvc-parking-hook 2>/dev/null || ec
 echo "VPS failure callback: $(sed -n '1p' $MPQ/rvc-vps-callback 2>/dev/null || echo not-received)"
 echo "PDC failure callback: $(sed -n '1p' $MPQ/rvc-pdc-callback 2>/dev/null || echo not-received)"
 echo "Last close request: $(sed -n '1p' $MPQ/rvc-close-request 2>/dev/null || echo none)"
+echo "Active-camera signal timeline:"
+sed -n '1,20p' $MPQ/rvc-signal-log 2>/dev/null || echo none
