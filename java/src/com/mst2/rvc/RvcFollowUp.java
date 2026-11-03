@@ -15,6 +15,7 @@ public final class RvcFollowUp {
     private static final String CLOSE = ROOT + "/rvc-close-request";
     private static final String SIGNALS = ROOT + "/rvc-signal-log";
     private static int signalSequence;
+    private static long lastCameraExit;
 
     private RvcFollowUp() {}
 
@@ -45,6 +46,7 @@ public final class RvcFollowUp {
     /** PQ P0478T exposes reverse exit only as departure from the active camera state. */
     public static synchronized void closeOnStateExit(String state) {
         if (!enabled()) return;
+        lastCameraExit = System.currentTimeMillis();
         try {
             boolean delivered = de.vw.mib.asl.framework.internal.framework.ServiceManager.eventMain
                     .getServiceRegister().triggerObserver(1073745153);
@@ -52,6 +54,24 @@ public final class RvcFollowUp {
         } catch (Throwable t) {
             try { writeText(CLOSE, "state-exit state=" + state + " failed"); } catch (Throwable ignored) {}
         }
+    }
+
+    public static synchronized boolean interceptLateVpsFailure(boolean failed, int valid) {
+        try { writeText(VPS_CALLBACK, "state=popup-off failed=" + (failed ? 1 : 0) + " valid=" + valid); } catch (Throwable t) {}
+        return interceptLateFailure(failed, "vps");
+    }
+
+    public static synchronized boolean interceptLatePdcFailure(boolean failed, int valid) {
+        try { writeText(CALLBACK, "state=popup-off failed=" + (failed ? 1 : 0) + " valid=" + valid); } catch (Throwable t) {}
+        return interceptLateFailure(failed, "pdc");
+    }
+
+    private static boolean interceptLateFailure(boolean failed, String source) {
+        long elapsed = System.currentTimeMillis() - lastCameraExit;
+        if (!failed || !enabled() || lastCameraExit == 0 || elapsed < 0 || elapsed > 10000) return false;
+        boolean intercepted = interceptFailure(true, "popup-off", source);
+        if (intercepted) lastCameraExit = 0;
+        return intercepted;
     }
 
     /** Returns true only when stock CLOSE_PARKING was delivered for this failure. */

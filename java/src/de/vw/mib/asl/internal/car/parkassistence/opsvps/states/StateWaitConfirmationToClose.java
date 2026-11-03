@@ -59,10 +59,6 @@ public class StateWaitConfirmationToClose extends StateBase {
         this.target.info().append("OpsVps: dsiCarParkingSystemAcknowledgeParkingPopup ").append(displayContent.toString()).append(" in class ").append(this.getName()).log();
         if (OpsVpsHsmTarget.isContentToCancel(displayContent)) {
             this.target.storeDisplayContent(displayContent);
-            if (com.mst2.rvc.RvcFollowUp.enabled()) {
-                com.mst2.rvc.RvcFollowUp.recordSignal("wait-close", "hold-after-ack");
-                return;
-            }
             this.trans(this.target.statePopupOff);
         } else {
             this.target.info().append("OpsVps: dsiCarParkingSystemAcknowledgeParkingPopup not from cancel request ").log();
