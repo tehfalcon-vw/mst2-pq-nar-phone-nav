@@ -110,6 +110,10 @@ the active VPS state. With the optional mode enabled, the overlay sends the stoc
 original state transition to continue normally. With the option off, state handling is
 unchanged. Failure-channel interception remains as a fallback for other unit codings.
 
+Some P0478T units deliver the camera failure only after the HSM has left the active VPS
+state and entered its stock wait-for-close state. That state is also covered, preventing
+the late failure from bubbling to the parent handler after a successful close request.
+
 **Warning:** this optional mode closes parking whenever the active camera state exits,
 including a transition away from the camera for a reason other than leaving reverse.
 It may also suppress a genuine parking-system fault reported during the camera popup.
