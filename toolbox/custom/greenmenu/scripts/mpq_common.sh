@@ -25,8 +25,8 @@ mpq_matches() {
 
 mpq_fingerprint() {
   h=$(mpq_hash "$1") || h=unreadable
-  set -- $(wc -c < "$1" 2>/dev/null)
-  echo "sha256=$h size=${1:-unreadable}"
+  s=$(ls -ln "$1" 2>/dev/null | awk '{print $5}')
+  echo "sha256=$h size=${s:-unreadable}"
 }
 
 mpq_report() {
@@ -50,7 +50,7 @@ mpq_save_report() {
 
 mpq_variant() {
   if mpq_matches /tsd/hmi/ifs/MIBHMI.jxe DEBB6893BC907432BC58E079567F31135572DA2F8DC05E2DE12948E5AE8EDC93; then
-    { mpq_matches $GAL B030FFF517D641D3D6B72DD748565ADEC58368A1875C8E5FD58C83DD03116EB ||
+    { mpq_matches $GAL B030FFF517D641D3D6B72DDF748565ADEC58368A1875C8E5FD58C83DD03116EB ||
       mpq_matches $GAL 57BC9B5B387970F4BFB0B09670B0A4D3CEC39CCAEDBB192BBA56BBE5F800F096; } &&
       { echo cpu; return 0; }
   fi

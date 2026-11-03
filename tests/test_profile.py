@@ -1,5 +1,6 @@
 import json
 import hashlib
+import re
 import pathlib
 import unittest
 
@@ -79,6 +80,20 @@ class ProfileTest(unittest.TestCase):
         common = (ROOT / "toolbox/custom/greenmenu/scripts/mpq_common.sh").read_text()
         self.assertNotIn("cksum", common)
         self.assertIn("sha256-check", common)
+
+    def test_all_target_hashes_are_complete(self):
+        common = (ROOT / "toolbox/custom/greenmenu/scripts/mpq_common.sh").read_text()
+        tokens = re.findall(r"mpq_matches\s+\S+\s+([A-F0-9]+)", common)
+        self.assertEqual(len(tokens), 6)
+        self.assertTrue(all(len(token) == 64 for token in tokens))
+        profile = json.loads((ROOT / "profiles/MST2_US_VW_PQ_P0478T.json").read_text())
+        expected = {
+            profile["variants"]["cpu"]["hmi_jxe"]["sha256"].upper(),
+            profile["variants"]["cpu"]["libgal"]["sha256"].upper(),
+            profile["variants"]["cpuplus"]["hmi_jxe"]["sha256"].upper(),
+            profile["variants"]["cpuplus"]["libgal"]["sha256"].upper(),
+        }
+        self.assertTrue(expected.issubset(set(tokens)))
 
 if __name__ == "__main__":
     unittest.main()
