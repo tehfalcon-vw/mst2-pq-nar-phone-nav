@@ -2,7 +2,13 @@
 . /tsd/etc/persistence/esd/scripts/mpq_common.sh
 echo "MST2-PQ phone navigation: install"
 [ "$(sed -n 's/^VERSION=//p' $HMI_SH | head -1)" = "H29.319.93" ] || { echo "Aborted: wrong HMI version."; exit 1; }
-mpq_cksum /lib/dll/ipod-drvr-iap2.so 771102 1621430627 || { echo "Aborted: wrong iAP2 driver."; exit 1; }
+if mpq_cksum /lib/dll/ipod-drvr-iap2.so 771102 1621430627; then
+  echo "Stock P0478T iAP2 driver verified."
+else
+  echo "WARNING: iAP2 driver checksum differs; runtime ABI guards will validate it."
+  echo "Actual iAP2 cksum and size:"
+  cksum /lib/dll/ipod-drvr-iap2.so 2>/dev/null || echo "Unable to read iAP2 driver checksum."
+fi
 VARIANT=$(mpq_variant) || { echo "Aborted: this is not an untouched P0478T cpu/cpuplus target."; exit 1; }
 CARD=$(mpq_card) || { echo "Aborted: beta files not found on SD card."; exit 1; }
 SRC=$CARD/custom/mst2-pq-phone-nav

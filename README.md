@@ -16,8 +16,9 @@ PQ has no MOST link to the cluster, so phone map video is not part of this proje
 | Unit | TechniSat/Preh MST2-PQ (`T` suffix) |
 
 Both `stdNavi` (`cpu`) and `stdPlus` (`cpuplus`) variants from this release are
-included. The installer verifies the HMI, Android Auto library and iAP2 driver before
-changing anything. A mismatch stops the installation.
+included. The installer requires the exact HMI and Android Auto library. A differing
+iAP2 checksum is reported as a warning because the hook resolves symbols dynamically
+and validates every modified slot at runtime; an incompatible driver remains stock.
 
 This has been built and statically checked against the supplied P0478T firmware but has
 not yet been tested in a vehicle. Treat it as an early beta.
@@ -54,8 +55,8 @@ Navigation page in the cluster. Do not test while driving.
    Keep all Toolbox files already on the card.
 4. Insert the card and open the Green Engineering Menu.
 5. Open **Customization → MST2-PQ NAR CarPlay + Android Auto navigation arrows**.
-6. Choose **Install / update**. If the result says `Aborted`, stop; never bypass the
-   firmware check.
+6. Choose **Install / update**. An iAP2 checksum warning is allowed and prints the
+   unit's actual checksum. If the HMI/GAL result says `Aborted`, stop; never bypass it.
 7. Reboot. The next boot is a one-boot trial.
 8. Connect a phone, start a route in CarPlay or Android Auto, and select the cluster's
    factory Navigation page. Play audio and verify title, artist and album in the MFD

@@ -44,5 +44,14 @@ class ProfileTest(unittest.TestCase):
         self.assertIn("mpq_scale_100.sh", menu)
         self.assertIn("mpq_scale_115.sh", menu)
 
+    def test_iap2_mismatch_uses_runtime_guards(self):
+        install = (ROOT / "toolbox/custom/greenmenu/scripts/mpq_install.sh").read_text()
+        hook = (ROOT / "native/src/ipod/ipod.c").read_text()
+        self.assertIn("WARNING: iAP2 driver checksum differs", install)
+        self.assertNotIn("Aborted: wrong iAP2 driver", install)
+        for guard in ("packet_addparam_blob", "ident_info_funcs", "iap2_ctrl_msg_table",
+                      "Location slot mismatch", "receive entry mismatch"):
+            self.assertIn(guard, hook)
+
 if __name__ == "__main__":
     unittest.main()
