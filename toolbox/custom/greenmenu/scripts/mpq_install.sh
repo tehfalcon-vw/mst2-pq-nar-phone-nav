@@ -26,7 +26,7 @@ VARIANT=$(mpq_variant) || {
 mkdir -p $MPQ/backup $CARD/mst2-pq-phone-nav-backup || { echo "Aborted: backup directories failed. Unit was not rebooted."; exit 1; }
 echo 100 > $MPQ/scale || { echo "Aborted: scale reset failed. Unit was not rebooted."; exit 1; }
 [ -s $MPQ/rvc-instant ] || echo 0 > $MPQ/rvc-instant || { echo "Aborted: RVC default failed. Unit was not rebooted."; exit 1; }
-rm -f $MPQ/rvc-gear-init $MPQ/rvc-gear-callback $MPQ/rvc-gear-history $MPQ/rvc-close-request || { echo "Aborted: stale RVC status cleanup failed. Unit was not rebooted."; exit 1; }
+rm -f $MPQ/rvc-gear-init $MPQ/rvc-gear-callback $MPQ/rvc-gear-history $MPQ/rvc-parking-hook $MPQ/rvc-pdc-callback $MPQ/rvc-close-request || { echo "Aborted: stale RVC status cleanup failed. Unit was not rebooted."; exit 1; }
 [ -s $MPQ/backup/runHMI.sh ] || cp -p $HMI_SH $MPQ/backup/runHMI.sh || exit 1
 [ -s $MPQ/backup/cpu.conf ] || cp -p $CPU_CONF $MPQ/backup/cpu.conf || exit 1
 [ -s $MPQ/backup/libext.google.gal.receiver.so ] || cp -p $GAL $MPQ/backup/libext.google.gal.receiver.so || exit 1

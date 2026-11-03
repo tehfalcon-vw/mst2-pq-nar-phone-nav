@@ -5,17 +5,13 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 
-/** Bridges the always-running stock car-service gear callback to parking close. */
+/** Optional aftermarket-camera failure interceptor for active parking popups. */
 public final class RvcFollowUp {
     private static final String ROOT = "/tsd/var/mst2-pq-phone-nav";
     private static final String CONFIG = ROOT + "/rvc-instant";
-    private static final String INIT = ROOT + "/rvc-gear-init";
-    private static final String CALLBACK = ROOT + "/rvc-gear-callback";
-    private static final String HISTORY = ROOT + "/rvc-gear-history";
+    private static final String INIT = ROOT + "/rvc-parking-hook";
+    private static final String CALLBACK = ROOT + "/rvc-pdc-callback";
     private static final String CLOSE = ROOT + "/rvc-close-request";
-    private static int lastMode = -1;
-    private static String history = "";
-    private static boolean initialized;
 
     private RvcFollowUp() {}
 
@@ -23,30 +19,22 @@ public final class RvcFollowUp {
         return readInt(CONFIG, 0) == 1;
     }
 
-    /** Called by HsmTargetCarService's existing attribute-15 listener. R is mode 2. */
-    public static synchronized void updateGear(int mode) {
-        if (!initialized) {
-            initialized = true;
-            try { writeText(INIT, "car-service-listener-active"); } catch (Throwable t) {}
-        }
-        int previous = lastMode;
-        if (previous == mode) return;
-        lastMode = mode;
-        history = history.length() == 0 ? String.valueOf(mode) : new StringBuffer(history).append(">").append(mode).toString();
-        if (history.length() > 80) {
-            int first = history.indexOf(">");
-            if (first >= 0) history = history.substring(first + 1);
-        }
-        try { writeText(CALLBACK, "mode=" + mode); } catch (Throwable t) {}
-        try { writeText(HISTORY, history); } catch (Throwable t) {}
-        if (enabled() && previous == 2 && mode != 2) {
-            try {
-                boolean delivered = de.vw.mib.asl.framework.internal.framework.ServiceManager.eventMain
-                        .getServiceRegister().triggerObserver(1073745153);
-                writeText(CLOSE, delivered ? "reverse-exit mode=" + mode + " delivered=1" : "reverse-exit mode=" + mode + " delivered=0");
-            } catch (Throwable t) {
-                try { writeText(CLOSE, "failed"); } catch (Throwable ignored) {}
-            }
+    public static synchronized void markParkingHook(String state) {
+        try { writeText(INIT, "parking-state-hooks-loaded last=" + state); } catch (Throwable t) {}
+    }
+
+    /** Returns true only when stock CLOSE_PARKING was delivered for this failure. */
+    public static synchronized boolean interceptPdcFailure(boolean failed, int valid, String state) {
+        try { writeText(CALLBACK, "state=" + state + " failed=" + (failed ? 1 : 0) + " valid=" + valid); } catch (Throwable t) {}
+        if (!failed || !enabled()) return false;
+        try {
+            boolean delivered = de.vw.mib.asl.framework.internal.framework.ServiceManager.eventMain
+                    .getServiceRegister().triggerObserver(1073745153);
+            writeText(CLOSE, "pdc-failure state=" + state + (delivered ? " delivered=1" : " delivered=0"));
+            return delivered;
+        } catch (Throwable t) {
+            try { writeText(CLOSE, "pdc-failure state=" + state + " failed"); } catch (Throwable ignored) {}
+            return false;
         }
     }
 
@@ -76,5 +64,4 @@ public final class RvcFollowUp {
         if (dest.exists() && !dest.delete()) throw new Exception("cannot replace " + path);
         if (!tmp.renameTo(dest)) throw new Exception("cannot commit " + path);
     }
-
 }

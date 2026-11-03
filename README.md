@@ -89,19 +89,25 @@ unavailable** message.
 4. Engage reverse, wait for the camera image, then shift out of reverse while stopped.
    The camera page should close immediately without the ParkPilot error.
 5. Reopen the menu and choose **Aftermarket RVC: show status**. It should report
-   **Car-service gear bridge: car-service-listener-active** and a **Gear callback**
-   with a non-reverse mode after shifting out of reverse. **Last close request** should
-   show `reverse-exit mode=... delivered=1`. **Gear history** records only transitions;
-   a Park → Reverse → Park test should include `1>2>1`.
+   **Parking-state hooks: parking-state-hooks-loaded**. When the aftermarket-camera
+   fault occurs, **PDC failure callback** should show `state=vps` or `state=ops-vps`
+   with `failed=1`, and **Last close request** should show
+   `pdc-failure state=... delivered=1`.
 6. Repeat several times, then test normal parking-sensor activation and its on-screen
-   close button. Genuine parking-sensor faults must still be shown.
+   close button.
 
-The fix is independent of CarPlay and Android Auto. It observes the always-running stock
-car service's existing gear callback. When mode 2 (reverse) changes to a non-reverse
-mode, it sends the stock `CLOSE_PARKING` event—the same close path used by the HMI. It
-does not add another vehicle-state subscription, write a vehicle adaptation or suppress
-ParkPilot failures. To undo it, choose **Aftermarket RVC: disable instant close** and
-allow the automatic reboot.
+The fix is independent of CarPlay and Android Auto. The PQ gateway does not expose a
+usable reverse transition through the HMI transmission-mode callback, so this mode
+instead watches the stock PDC-failure callback while the RVC or combined OPS+RVC popup
+is active. When that failure arrives, it sends the stock `CLOSE_PARKING` event—the same
+close path used by the HMI. The stock error handler is skipped only when close delivery
+succeeds; with the option off, a false failure, or a failed close delivery, stock
+behavior is preserved.
+
+**Warning:** while this optional mode is on, a genuine PDC fault reported while an
+active camera popup is displayed can be closed and suppressed. Disable the mode before
+diagnosing real parking-sensor trouble. To undo it, choose **Aftermarket RVC: disable
+instant close** and allow the automatic reboot.
 
 The installer saves stock files on the unit and in
 `mst2-pq-phone-nav-backup` on the SD card. Keep the SD-card copy.
@@ -141,7 +147,8 @@ Please include:
   between CarPlay and Android Auto.
 - Whether 125% works for both phone protocols without cropped controls or touch offset.
 - For the optional RVC fix: original delay behavior, instant-close result, repeated
-  reverse cycles, parking-sensor button behavior, and whether the stock value restores.
+  reverse cycles, parking-sensor button behavior, all three status lines, and whether
+  disabling the option restores stock behavior.
 - Whether disconnect, reconnect, trial boot, permanent enable, kill switch and uninstall worked.
 - Relevant `/tsd/var/mst2-pq-phone-nav` and SAL log output.
 
