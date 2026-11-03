@@ -15,6 +15,7 @@ import de.vw.mib.asl.api.navigation.ASLNavigationFactory;
 import de.vw.mib.asl.api.navigation.ASLNavigationServices;
 import de.vw.mib.asl.framework.api.displaymanagement.ASLDisplaymanagementFactory;
 import de.vw.mib.asl.framework.api.displaymanagement.displayable.DisplayableService;
+import de.vw.mib.asl.framework.api.dsiproxy.DSIProxy;
 import de.vw.mib.asl.framework.api.dsiproxy.DSIProxyFactory;
 import de.vw.mib.asl.framework.api.dsiproxy.DSIServiceStateListener;
 import de.vw.mib.asl.framework.internal.framework.AbstractASLTarget;
@@ -35,6 +36,7 @@ import org.dsi.ifc.androidauto2.PlaybackInfo;
 import org.dsi.ifc.androidauto2.TelephonyState;
 import org.dsi.ifc.androidauto2.TrackData;
 import org.dsi.ifc.base.DSIListener;
+import org.dsi.ifc.carparkingsystem.DSICarParkingSystem;
 import org.dsi.ifc.global.ResourceLocator;
 import org.osgi.framework.ServiceReference;
 
@@ -62,6 +64,8 @@ public class AndroidAutoTarget
     private DisplayableService dispService;
     private DSIAndroidAuto2 dsiAndroidAuto2;
     private DSIListener dsiAndroidAuto2Listener;
+    private DSICarParkingSystem dsiCarParkingSystem;
+    private DSIListener dsiCarParkingSystemListener;
     private boolean targetStarted = false;
     boolean dsiSmartPhoneIntegrationAvailable = false;
     private /*final*/ String _classname;
@@ -74,6 +78,8 @@ public class AndroidAutoTarget
     /*final*/ int[] DSI_ANDROIDAUTO2_ATTR = new int[]{1, 6, 2, 3, 4, 5, 7, 8};
     static /* synthetic */ Class class$org$dsi$ifc$androidauto2$DSIAndroidAuto2;
     static /* synthetic */ Class class$org$dsi$ifc$androidauto2$DSIAndroidAuto2Listener;
+    static /* synthetic */ Class class$org$dsi$ifc$carparkingsystem$DSICarParkingSystem;
+    static /* synthetic */ Class class$org$dsi$ifc$carparkingsystem$DSICarParkingSystemListener;
     static /* synthetic */ Class class$de$vw$mib$threads$AsyncServiceFactory;
     static /* synthetic */ Class class$de$vw$mib$popup$PopupInformationHandler;
 
@@ -187,8 +193,28 @@ public class AndroidAutoTarget
         }
         this.dsiAndroidAuto2.setNotification(this.DSI_ANDROIDAUTO2_ATTR, this.dsiAndroidAuto2Listener);
 
+        // Optional aftermarket-camera fix. The parking DSI exposes the factory post-reverse
+        // VPS follow-up time directly, so no ParkPilot failure messages are suppressed.
+        try { this.initializeRvcFollowUp((DSIProxy) object); } catch (Throwable t) {
+            MIBLogger.getInstance().error("RVC follow-up initialization failed: " + t);
+        }
+
         this.dsihandler.handleDsiAndroidAuto2NavFocusRequestNotification(Constants.NAVFOCUS_NATIVE, 1);
         this.navigationHandler.navigationFocus(Constants.NAVFOCUS_NATIVE);
+    }
+
+    private void initializeRvcFollowUp(DSIProxy proxy) {
+        if (!com.mst2.rvc.RvcFollowUp.actionNeeded() || this.dsiCarParkingSystemListener != null) return;
+        Class serviceClass = class$org$dsi$ifc$carparkingsystem$DSICarParkingSystem == null
+                ? (class$org$dsi$ifc$carparkingsystem$DSICarParkingSystem = AndroidAutoTarget.class$("org.dsi.ifc.carparkingsystem.DSICarParkingSystem"))
+                : class$org$dsi$ifc$carparkingsystem$DSICarParkingSystem;
+        Class listenerClass = class$org$dsi$ifc$carparkingsystem$DSICarParkingSystemListener == null
+                ? (class$org$dsi$ifc$carparkingsystem$DSICarParkingSystemListener = AndroidAutoTarget.class$("org.dsi.ifc.carparkingsystem.DSICarParkingSystemListener"))
+                : class$org$dsi$ifc$carparkingsystem$DSICarParkingSystemListener;
+        this.dsiCarParkingSystem = (DSICarParkingSystem) proxy.getService(this, serviceClass);
+        this.dsiCarParkingSystemListener = proxy.getAdapterFactory().createDSIListenerMethodAdapter(this, listenerClass);
+        proxy.addResponseListener(this, listenerClass, this.dsiCarParkingSystemListener);
+        this.dsiCarParkingSystem.setNotification(13, this.dsiCarParkingSystemListener);
     }
 
     private void deInitializeDSI() {
@@ -196,6 +222,20 @@ public class AndroidAutoTarget
             DSIProxyFactory.getDSIProxyAPI().getDSIProxy().removeResponseListener(this, class$org$dsi$ifc$androidauto2$DSIAndroidAuto2Listener == null ? (class$org$dsi$ifc$androidauto2$DSIAndroidAuto2Listener = AndroidAutoTarget.class$("org.dsi.ifc.androidauto2.DSIAndroidAuto2Listener")) : class$org$dsi$ifc$androidauto2$DSIAndroidAuto2Listener, this.dsiAndroidAuto2Listener);
         }
         this.dsiAndroidAuto2Listener = null;
+        if (this.dsiCarParkingSystemListener != null) {
+            DSIProxy proxy = DSIProxyFactory.getDSIProxyAPI().getDSIProxy();
+            Class listenerClass = class$org$dsi$ifc$carparkingsystem$DSICarParkingSystemListener == null
+                    ? (class$org$dsi$ifc$carparkingsystem$DSICarParkingSystemListener = AndroidAutoTarget.class$("org.dsi.ifc.carparkingsystem.DSICarParkingSystemListener"))
+                    : class$org$dsi$ifc$carparkingsystem$DSICarParkingSystemListener;
+            try { this.dsiCarParkingSystem.clearNotification(13, this.dsiCarParkingSystemListener); } catch (Throwable t) {}
+            proxy.removeResponseListener(this, listenerClass, this.dsiCarParkingSystemListener);
+        }
+        this.dsiCarParkingSystemListener = null;
+        this.dsiCarParkingSystem = null;
+    }
+
+    public void dsiCarParkingSystemUpdateVPSFollowUpTime(int value, int valid) {
+        com.mst2.rvc.RvcFollowUp.update(this.dsiCarParkingSystem, value, valid);
     }
 
     public DSIAndroidAuto2 getDSIAndroidAuto2() {

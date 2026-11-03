@@ -1,9 +1,11 @@
-# MST2-PQ NAR Phone Navigation, Media and 125% Scale
+# MST2-PQ NAR Phone Navigation, Media, 125% Scale and RVC Fix
 
 Beta support for CarPlay and Android Auto navigation arrows, now-playing information
 and optional 125% projection scaling on a VW PQ MST2 unit. Navigation appears in the
 factory cluster Navigation page; song, artist and album appear in the MFD audio page.
 PQ has no MOST link to the cluster, so phone map video is not part of this project.
+An optional aftermarket-camera mode removes the factory rear-view-camera follow-up
+delay after reverse is disengaged.
 
 ## Supported firmware
 
@@ -31,6 +33,8 @@ unit; other vehicles, clusters, phones and the `cpuplus` variant remain beta cov
 - Output through the stock PQ `mqbpq` NavSD/BAP functions.
 - CarPlay and Android Auto title, artist and album on the cluster MFD audio page.
 - Selectable stock 100% or enlarged 125% CarPlay and Android Auto screen scale.
+- Optional instant rear-view-camera close for aftermarket cameras that power down as
+  soon as the vehicle leaves reverse.
 - Support for both Android Auto DSI generations present in P0478T.
 - A one-boot trial, emergency kill switch, stock backups and uninstall.
 - No cluster map video, MOST code, display-manager hook or album art.
@@ -72,6 +76,28 @@ Navigation page in the cluster. Do not test while driving.
     choose **Projection scale: 125%**, reboot, and verify CarPlay and Android Auto touch
     alignment. Choose **Projection scale: stock 100%** and reboot to revert the scale.
 
+## Optional aftermarket rear-view-camera fix
+
+Use this only when an aftermarket camera turns off immediately after leaving reverse
+and the factory display delay produces a blank image or **ParkPilot is currently
+unavailable** message.
+
+1. First confirm the normal phone-navigation installation is stable and permanently
+   enabled.
+2. Open **Toolbox → Customization → MST2_PQ_Phone_Nav**.
+3. Choose **Aftermarket RVC: instant close**. The unit reboots automatically.
+4. Engage reverse, wait for the camera image, then shift out of reverse while stopped.
+   The camera page should close immediately without the ParkPilot error.
+5. Reopen the menu and choose **Aftermarket RVC: show status**. Continue only if it
+   reports **Zero delay verified: YES** and shows a saved stock value.
+6. Repeat several times, then test normal parking-sensor activation and its on-screen
+   close button. Genuine parking-sensor faults must still be shown.
+
+The first successful application stores the unit's original VPS follow-up value before
+requesting zero delay. To undo the change, choose **Aftermarket RVC: restore stock
+delay** and allow its automatic reboot. This feature changes only the dedicated camera
+follow-up setting; it does not suppress ParkPilot failure notifications.
+
 The installer saves stock files on the unit and in
 `mst2-pq-phone-nav-backup` on the SD card. Keep the SD-card copy.
 
@@ -86,8 +112,10 @@ contain an existing App-Connect or FEC patch that must be preserved deliberately
 To force the mod off before the HMI starts, create an empty file named
 `mst2-pq-phone-nav-disable` in the root of the Toolbox SD card, insert it, and boot.
 
-For a normal removal, open the same Green Engineering Menu page, choose **Uninstall and
-restore stock files**, wait for success, and reboot.
+For a normal removal, first choose **Aftermarket RVC: restore stock delay** if the RVC
+fix was ever enabled and allow that reboot to finish. Then open the same menu, choose
+**Uninstall and restore stock files**, wait for success, and reboot. Uninstall refuses
+to continue while an original RVC value is waiting to be restored.
 
 ## Tester report
 
@@ -100,6 +128,8 @@ Please include:
 - Whether title, artist and album update, clear on disconnect and switch correctly
   between CarPlay and Android Auto.
 - Whether 125% works for both phone protocols without cropped controls or touch offset.
+- For the optional RVC fix: original delay behavior, instant-close result, repeated
+  reverse cycles, parking-sensor button behavior, and whether the stock value restores.
 - Whether disconnect, reconnect, trial boot, permanent enable, kill switch and uninstall worked.
 - Relevant `/tsd/var/mst2-pq-phone-nav` and SAL log output.
 

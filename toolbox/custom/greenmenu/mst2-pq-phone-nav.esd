@@ -24,5 +24,14 @@ script
     value sys 1 0x0100 "/tsd/etc/persistence/esd/scripts/mpq_scale_125.sh"
     label "Projection scale: 125% (reboot)"
 script
+    value sys 1 0x0100 "/tsd/etc/persistence/esd/scripts/mpq_rvc_instant_on.sh"
+    label "Aftermarket RVC: instant close (reboot)"
+script
+    value sys 1 0x0100 "/tsd/etc/persistence/esd/scripts/mpq_rvc_instant_off.sh"
+    label "Aftermarket RVC: restore stock delay (reboot)"
+script
+    value sys 1 0x0100 "/tsd/etc/persistence/esd/scripts/mpq_rvc_status.sh"
+    label "Aftermarket RVC: show status"
+script
     value sys 1 0x0100 "/tsd/etc/persistence/esd/scripts/mpq_uninstall.sh"
     label "Uninstall and restore stock files"

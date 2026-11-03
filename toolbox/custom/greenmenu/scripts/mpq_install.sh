@@ -25,6 +25,7 @@ VARIANT=$(mpq_variant) || {
 }
 mkdir -p $MPQ/backup $CARD/mst2-pq-phone-nav-backup || { echo "Aborted: backup directories failed. Unit was not rebooted."; exit 1; }
 echo 100 > $MPQ/scale || { echo "Aborted: scale reset failed. Unit was not rebooted."; exit 1; }
+[ -s $MPQ/rvc-instant ] || echo 0 > $MPQ/rvc-instant || { echo "Aborted: RVC default failed. Unit was not rebooted."; exit 1; }
 [ -s $MPQ/backup/runHMI.sh ] || cp -p $HMI_SH $MPQ/backup/runHMI.sh || exit 1
 [ -s $MPQ/backup/cpu.conf ] || cp -p $CPU_CONF $MPQ/backup/cpu.conf || exit 1
 [ -s $MPQ/backup/libext.google.gal.receiver.so ] || cp -p $GAL $MPQ/backup/libext.google.gal.receiver.so || exit 1
@@ -47,5 +48,6 @@ mpq_mount_ro || { echo "Aborted: read-only remount failed. Unit was not rebooted
 rm -f $MPQ/enabled && touch $MPQ/trial /dev/shmem/mst2-cluster-nav-armed || { echo "Aborted: trial marker failed. Unit was not rebooted."; exit 1; }
 echo "Installed for $VARIANT. NEXT boot is a one-boot trial."
 echo "Projection scale was reset to 100% for this trial. Select 125% only after validation."
+echo "The aftermarket RVC fix remains off until selected separately."
 echo "After a successful drive, choose Enable permanently."
 mpq_reboot

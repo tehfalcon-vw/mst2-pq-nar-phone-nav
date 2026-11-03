@@ -74,6 +74,29 @@ class ProfileTest(unittest.TestCase):
         self.assertIn("Copy custom GEM scripts to unit", readme)
         self.assertIn("MST2_PQ_Phone_Nav", readme)
 
+    def test_rvc_fix_uses_dedicated_followup_setting_and_is_reversible(self):
+        target = (ROOT / "java/src/de/vw/mib/asl/internal/androidauto/target/AndroidAutoTarget.java").read_text()
+        helper = (ROOT / "java/src/com/mst2/rvc/RvcFollowUp.java").read_text()
+        menu = (ROOT / "toolbox/custom/greenmenu/mst2-pq-phone-nav.esd").read_text()
+        uninstall = (ROOT / "toolbox/custom/greenmenu/scripts/mpq_uninstall.sh").read_text()
+        self.assertIn("setNotification(13", target)
+        self.assertIn("dsiCarParkingSystemUpdateVPSFollowUpTime", target)
+        self.assertIn("setVPSFollowUpTime(0)", helper)
+        self.assertIn("rvc-followup-stock", helper)
+        self.assertIn("rvc-followup-restored", helper)
+        self.assertNotIn("updatePDCFailure", helper)
+        self.assertIn("mpq_rvc_instant_on.sh", menu)
+        self.assertIn("mpq_rvc_instant_off.sh", menu)
+        self.assertIn("mpq_rvc_status.sh", menu)
+        self.assertIn("restore the stock RVC delay first", uninstall)
+        disable = (ROOT / "toolbox/custom/greenmenu/scripts/mpq_disable.sh").read_text()
+        self.assertIn("restore the stock RVC delay before disabling", disable)
+
+    def test_rvc_fix_defaults_off_but_survives_updates(self):
+        install = (ROOT / "toolbox/custom/greenmenu/scripts/mpq_install.sh").read_text()
+        self.assertIn("[ -s $MPQ/rvc-instant ] || echo 0", install)
+        self.assertNotIn("echo 0 > $MPQ/rvc-instant ||", install.split("[ -s $MPQ/rvc-instant ]", 1)[0])
+
     def test_iap2_mismatch_uses_runtime_guards(self):
         install = (ROOT / "toolbox/custom/greenmenu/scripts/mpq_install.sh").read_text()
         hook = (ROOT / "native/src/ipod/ipod.c").read_text()
