@@ -11,6 +11,7 @@ public final class RvcFollowUp {
     private static final String CONFIG = ROOT + "/rvc-instant";
     private static final String INIT = ROOT + "/rvc-parking-hook";
     private static final String CALLBACK = ROOT + "/rvc-pdc-callback";
+    private static final String VPS_CALLBACK = ROOT + "/rvc-vps-callback";
     private static final String CLOSE = ROOT + "/rvc-close-request";
 
     private RvcFollowUp() {}
@@ -26,14 +27,24 @@ public final class RvcFollowUp {
     /** Returns true only when stock CLOSE_PARKING was delivered for this failure. */
     public static synchronized boolean interceptPdcFailure(boolean failed, int valid, String state) {
         try { writeText(CALLBACK, "state=" + state + " failed=" + (failed ? 1 : 0) + " valid=" + valid); } catch (Throwable t) {}
+        return interceptFailure(failed, state, "pdc");
+    }
+
+    /** Active camera states normally inherit this callback from StatePopupOff. */
+    public static synchronized boolean interceptVpsFailure(boolean failed, int valid, String state) {
+        try { writeText(VPS_CALLBACK, "state=" + state + " failed=" + (failed ? 1 : 0) + " valid=" + valid); } catch (Throwable t) {}
+        return interceptFailure(failed, state, "vps");
+    }
+
+    private static boolean interceptFailure(boolean failed, String state, String source) {
         if (!failed || !enabled()) return false;
         try {
             boolean delivered = de.vw.mib.asl.framework.internal.framework.ServiceManager.eventMain
                     .getServiceRegister().triggerObserver(1073745153);
-            writeText(CLOSE, "pdc-failure state=" + state + (delivered ? " delivered=1" : " delivered=0"));
+            writeText(CLOSE, source + "-failure state=" + state + (delivered ? " delivered=1" : " delivered=0"));
             return delivered;
         } catch (Throwable t) {
-            try { writeText(CLOSE, "pdc-failure state=" + state + " failed"); } catch (Throwable ignored) {}
+            try { writeText(CLOSE, source + "-failure state=" + state + " failed"); } catch (Throwable ignored) {}
             return false;
         }
     }

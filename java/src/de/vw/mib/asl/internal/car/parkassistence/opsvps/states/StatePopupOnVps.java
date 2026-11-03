@@ -258,4 +258,10 @@ extends StateBase {
         if (com.mst2.rvc.RvcFollowUp.interceptPdcFailure(bl, n, "vps")) return;
         this.target.updatePDCFailure(bl);
     }
+
+    public void dsiCarParkingSystemUpdateVPSFailure(boolean bl, int n) {
+        this.target.info().append("OpsVps: StatePopupOnVps dsiCarParkingSystemUpdateVPSFailure: ").append(bl).log();
+        if (com.mst2.rvc.RvcFollowUp.interceptVpsFailure(bl, n, "vps")) return;
+        this.target.setVPSFailure(bl);
+    }
 }

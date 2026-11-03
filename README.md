@@ -90,19 +90,21 @@ unavailable** message.
    The camera page should close immediately without the ParkPilot error.
 5. Reopen the menu and choose **Aftermarket RVC: show status**. It should report
    **Parking-state hooks: parking-state-hooks-loaded**. When the aftermarket-camera
-   fault occurs, **PDC failure callback** should show `state=vps` or `state=ops-vps`
-   with `failed=1`, and **Last close request** should show
-   `pdc-failure state=... delivered=1`.
+   fault occurs, **VPS failure callback** should normally show `state=vps` or
+   `state=ops-vps` with `failed=1`. Units that report the fault through the OPS side
+   may instead populate **PDC failure callback**. **Last close request** should show
+   `vps-failure state=... delivered=1` or `pdc-failure state=... delivered=1`.
 6. Repeat several times, then test normal parking-sensor activation and its on-screen
    close button.
 
 The fix is independent of CarPlay and Android Auto. The PQ gateway does not expose a
 usable reverse transition through the HMI transmission-mode callback, so this mode
-instead watches the stock PDC-failure callback while the RVC or combined OPS+RVC popup
-is active. When that failure arrives, it sends the stock `CLOSE_PARKING` event—the same
-close path used by the HMI. The stock error handler is skipped only when close delivery
-succeeds; with the option off, a false failure, or a failed close delivery, stock
-behavior is preserved.
+instead watches the stock VPS- and PDC-failure callbacks while the RVC or combined
+OPS+RVC popup is active. In P0478T the VPS failure normally bubbles to the inactive-state
+handler; this overlay catches it in the active camera state first. When a failure
+arrives, it sends the stock `CLOSE_PARKING` event—the same close path used by the HMI.
+The stock error handler is skipped only when close delivery succeeds; with the option
+off, a false failure, or a failed close delivery, stock behavior is preserved.
 
 **Warning:** while this optional mode is on, a genuine PDC fault reported while an
 active camera popup is displayed can be closed and suppressed. Disable the mode before

@@ -88,15 +88,22 @@ class ProfileTest(unittest.TestCase):
         self.assertIn('RvcFollowUp.markParkingHook("ops-vps")', ops_vps)
         self.assertIn('RvcFollowUp.interceptPdcFailure(bl, n, "vps")', vps)
         self.assertIn('RvcFollowUp.interceptPdcFailure(bl, n, "ops-vps")', ops_vps)
+        self.assertIn('RvcFollowUp.interceptVpsFailure(bl, n, "vps")', vps)
+        self.assertIn('RvcFollowUp.interceptVpsFailure(bl, n, "ops-vps")', ops_vps)
         self.assertGreater(vps.find("this.target.updatePDCFailure(bl)"),
                            vps.find("interceptPdcFailure(bl, n"))
         self.assertGreater(ops_vps.find("this.target.updatePDCFailure(bl)"),
                            ops_vps.find("interceptPdcFailure(bl, n"))
+        self.assertGreater(vps.find("this.target.setVPSFailure(bl)"),
+                           vps.find("interceptVpsFailure(bl, n"))
+        self.assertGreater(ops_vps.find("this.target.setVPSFailure(bl)"),
+                           ops_vps.find("interceptVpsFailure(bl, n"))
         self.assertIn("getServiceRegister().triggerObserver(1073745153)",
                       "".join(helper.split()))
         self.assertIn("if (!failed || !enabled()) return false", helper)
         self.assertIn("return delivered", helper)
         self.assertIn("rvc-parking-hook", helper)
+        self.assertIn("rvc-vps-callback", helper)
         self.assertIn("rvc-pdc-callback", helper)
         self.assertNotIn("setVPSFollowUpTime", helper)
         self.assertIn("mpq_rvc_instant_on.sh", menu)
@@ -104,6 +111,7 @@ class ProfileTest(unittest.TestCase):
         self.assertIn("mpq_rvc_status.sh", menu)
         status = (ROOT / "toolbox/custom/greenmenu/scripts/mpq_rvc_status.sh").read_text()
         self.assertIn("Parking-state hooks", status)
+        self.assertIn("VPS failure callback", status)
         self.assertIn("PDC failure callback", status)
         self.assertIn("Last close request", status)
         self.assertNotIn("rvc-followup", uninstall)
@@ -115,7 +123,7 @@ class ProfileTest(unittest.TestCase):
         install = (ROOT / "toolbox/custom/greenmenu/scripts/mpq_install.sh").read_text()
         self.assertIn("[ -s $MPQ/rvc-instant ] || echo 0", install)
         self.assertNotIn("echo 0 > $MPQ/rvc-instant ||", install.split("[ -s $MPQ/rvc-instant ]", 1)[0])
-        self.assertIn("$MPQ/rvc-parking-hook $MPQ/rvc-pdc-callback $MPQ/rvc-close-request", install)
+        self.assertIn("$MPQ/rvc-parking-hook $MPQ/rvc-vps-callback $MPQ/rvc-pdc-callback $MPQ/rvc-close-request", install)
         self.assertIn("preference was preserved", install)
 
     def test_iap2_mismatch_uses_runtime_guards(self):
