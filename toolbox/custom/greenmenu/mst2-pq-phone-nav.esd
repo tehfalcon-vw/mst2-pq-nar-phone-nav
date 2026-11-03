@@ -21,8 +21,8 @@ script
     value sys 1 0x0100 "/tsd/etc/persistence/esd/scripts/mpq_scale_100.sh"
     label "Projection scale: stock 100% (reboot)"
 script
-    value sys 1 0x0100 "/tsd/etc/persistence/esd/scripts/mpq_scale_115.sh"
-    label "Projection scale: 115% (reboot)"
+    value sys 1 0x0100 "/tsd/etc/persistence/esd/scripts/mpq_scale_125.sh"
+    label "Projection scale: 125% (reboot)"
 script
     value sys 1 0x0100 "/tsd/etc/persistence/esd/scripts/mpq_uninstall.sh"
     label "Uninstall and restore stock files"

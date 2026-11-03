@@ -1,7 +1,7 @@
-# MST2-PQ NAR Phone Navigation, Media and 115% Scale
+# MST2-PQ NAR Phone Navigation, Media and 125% Scale
 
 Beta support for CarPlay and Android Auto navigation arrows, now-playing information
-and optional 115% projection scaling on a VW PQ MST2 unit. Navigation appears in the
+and optional 125% projection scaling on a VW PQ MST2 unit. Navigation appears in the
 factory cluster Navigation page; song, artist and album appear in the MFD audio page.
 PQ has no MOST link to the cluster, so phone map video is not part of this project.
 
@@ -29,7 +29,7 @@ not yet been tested in a vehicle. Treat it as an early beta.
 - CarPlay navigation through iAP2 Route Guidance.
 - Output through the stock PQ `mqbpq` NavSD/BAP functions.
 - CarPlay and Android Auto title, artist and album on the cluster MFD audio page.
-- Selectable stock 100% or enlarged 115% CarPlay and Android Auto screen scale.
+- Selectable stock 100% or enlarged 125% CarPlay and Android Auto screen scale.
 - Support for both Android Auto DSI generations present in P0478T.
 - A one-boot trial, emergency kill switch, stock backups and uninstall.
 - No cluster map video, MOST code, display-manager hook or album art.
@@ -66,7 +66,7 @@ Navigation page in the cluster. Do not test while driving.
    menu and choose **Enable permanently**, then reboot once more.
 10. The first trial uses stock 100% projection scale. After navigation, media metadata,
     CarPlay/Android Auto controls and reconnect all pass,
-    choose **Projection scale: 115%**, reboot, and verify CarPlay and Android Auto touch
+    choose **Projection scale: 125%**, reboot, and verify CarPlay and Android Auto touch
     alignment. Choose **Projection scale: stock 100%** and reboot to revert the scale.
 
 The installer saves stock files on the unit and in
@@ -96,7 +96,7 @@ Please include:
 - Which fields worked: route-active state, arrow, distance, street and destination time.
 - Whether title, artist and album update, clear on disconnect and switch correctly
   between CarPlay and Android Auto.
-- Whether 115% works for both phone protocols without cropped controls or touch offset.
+- Whether 125% works for both phone protocols without cropped controls or touch offset.
 - Whether disconnect, reconnect, trial boot, permanent enable, kill switch and uninstall worked.
 - Relevant `/tsd/var/mst2-pq-phone-nav` and SAL log output.
 

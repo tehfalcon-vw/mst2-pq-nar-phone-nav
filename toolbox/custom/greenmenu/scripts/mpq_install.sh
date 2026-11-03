@@ -42,5 +42,5 @@ mpq_mount_ro
 rm -f $MPQ/enabled
 touch $MPQ/trial /dev/shmem/mst2-cluster-nav-armed
 echo "Installed for $VARIANT. NEXT boot is a one-boot trial."
-echo "Projection scale was reset to 100% for this trial. Select 115% only after validation."
+echo "Projection scale was reset to 100% for this trial. Select 125% only after validation."
 echo "After a successful drive, choose Enable permanently."

@@ -16,7 +16,7 @@ public final class ProjectedScale {
             String value = reader.readLine();
             if (value == null || reader.readLine() != null) return 100;
             int scale = Integer.parseInt(value.trim());
-            return scale == 100 || scale == 115 ? scale : 100;
+            return scale == 100 || scale == 125 ? scale : 100;
         } catch (Throwable t) {
             return 100;
         } finally {
